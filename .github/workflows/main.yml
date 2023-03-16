@@ -19,4 +19,4 @@ jobs:
           remote-host: "207.244.248.118"
           remote-user: "lxtec"
           ssh-private-key: ${{ secrets.DEPLOY_PRIVATE_KEY }}
-          remote-path: "var/www/html/LxProcessos/demoprcss/github-actions/"
+          remote-path: "/var/www/html/LxProcessos/demoprcss/github-actions/"
