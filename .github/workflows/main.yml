@@ -19,4 +19,4 @@ jobs:
         username: lxtec
         password: SkyLin3@1999
         server-dir: var/www/html/LxProcessos/demoprcss/github-actions/
-        protocol: sftp
+        protocol: ftps
