@@ -16,7 +16,7 @@ jobs:
           username: 'root'
           server: '207.244.248.118'
           port: '37950'
-          ssh_private_key: ChevEll3@1970
+          ssh_private_key: 'ChevEll3@1970'
           local_path: './static/*'
           remote_path: 'var/www/html/LxProcessos/demoprcss/github-actions/'
           args: '-o ConnectTimeout=5'
