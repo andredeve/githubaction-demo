@@ -19,4 +19,4 @@ jobs:
             local_path: './static/*'
             remote_path: '/var/www/html/LxProcessos/demoprcss/github-actions/'
             sftp_only: true
-            password: SkyLin3@1999
+            password: 'SkyLin3@1999'
