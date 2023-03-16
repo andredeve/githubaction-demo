@@ -17,6 +17,6 @@ jobs:
         server: 207.244.248.118
         port: 37950
         username: lxtec
-        password: ${{ secrets.FTP_PASSWORD }}
+        password: SkyLin3@1999
         server-dir: var/www/html/LxProcessos/demoprcss/github-actions/
         protocol: sftp
