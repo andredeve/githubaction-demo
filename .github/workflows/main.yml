@@ -4,19 +4,19 @@ on:
       - main
 name: 🚀 Deploy website on push
 jobs:
-    deploy_job:
+  deploy_job:
     runs-on: ubuntu-latest
     name: deploy
     steps:
-        - name: Checkout
-        uses: actions/checkout@v2
-        - name: Deploy file
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-        with:
-            username: 'lxtec'
-            server: '207.244.248.118'
-            port: '37950'
-            local_path: './static/*'
-            remote_path: '/var/www/html/LxProcessos/demoprcss/github-actions/'
-            sftp_only: true
-            password: 'SkyLin3@1999'
+      - name: Checkout
+      uses: actions/checkout@v2
+      - name: Deploy file
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      with:
+        username: 'lxtec'
+        server: '207.244.248.118'
+        port: '37950'
+        local_path: './static/*'
+        remote_path: '/var/www/html/LxProcessos/demoprcss/github-actions/'
+        sftp_only: true
+        password: 'SkyLin3@1999'
