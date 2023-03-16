@@ -14,9 +14,9 @@ jobs:
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: ${{ secrets.FTP_HOST }}
-        port: ${{ secrets.FTP_PORT }}
-        username: ${{ secrets.FTP_USER }}
+        server: 207.244.248.118
+        port: 37950
+        username: lxtec
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /var/www/html/LxProcessos/demoprcss/github-actions/
+        server-dir: var/www/html/LxProcessos/demoprcss/github-actions/
         protocol: sftp
