@@ -8,15 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     name: deploy
     steps:
-      - name: "Checkout"
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: deploy file
+        uses: wlixcc/SFTP-Deploy-Action@v1.0
         with:
-          fetch-depth: 0
-      - name: "Deploy"
-        uses: milanmk/actions-file-deployer@master
-        with:
-          remote-protocol: "sftp"
-          remote-host: "207.244.248.118"
-          remote-user: "lxtec"
-          ssh-private-key: ${{ secrets.DEPLOY_PRIVATE_KEY }}
-          remote-path: "/var/www/html/LxProcessos/demoprcss/github-actions/"
+          username: 'lxtec'
+          server: '207.244.248.118'
+          ssh_private_key: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+          local_path: './static/*'
+          remote_path: '/var/www/html/LxProcessos/demoprcss/github-actions/'
+          args: '-o ConnectTimeout=5'
