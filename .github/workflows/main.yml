@@ -16,7 +16,7 @@ jobs:
           username: 'lxtec'
           server: '207.244.248.118'
           port: '37950'
-          ssh_private_key: SkyLin3@1999
+          ssh_private_key: 'SkyLin3@1999'
           local_path: './static/*'
           remote_path: '/var/www/html/LxProcessos/demoprcss/github-actions/'
           args: '-o ConnectTimeout=5'
