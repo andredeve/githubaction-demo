@@ -13,7 +13,7 @@ jobs:
       - name: deploy file to server
         uses: wlixcc/SFTP-Deploy-Action@v1.0
         with:
-          username: 'root'
+          username: 'lxtec'
           server: '207.244.248.118'
           port: 37950
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
