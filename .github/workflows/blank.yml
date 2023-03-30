@@ -27,8 +27,12 @@ jobs:
           server: 207.244.248.118
           port: 37950 # default is 22
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+<<<<<<< HEAD
           password: ${{ secrets.FTP_PASSWORD }}
           
+=======
+   
+>>>>>>> 570344d49b6f3191fb63416e65c2b69629f048e0
           # will put all file under this path
           local_path: ./* # default is ./*
           # files will copy to under remote_path
