@@ -1,0 +1,24 @@
+//Criar Tabelas 
+php vendor/doctrine/orm/bin/doctrine orm:schema-tool:create
+
+//Remover Tabelas
+php vendor/doctrine/orm/bin/doctrine orm:schema-tool:drop
+
+//Atualizar Banco
+cd /var/www/html/lxprocessos
+php vendor/doctrine/orm/bin/doctrine orm:schema-tool:update --force >> output_doctrine_11_05.txt
+
+//Exibi o sql que será utilizado pra fazer o update
+php vendor/doctrine/orm/bin/doctrine orm:schema-tool:update --dump-sql
+
+//Gerar Arquivos Proxies
+php vendor/doctrine/orm/bin/doctrine orm:generate-proxies
+
+//Limpar Cache
+ php vendor/doctrine/orm/bin/doctrine orm:clear-cache:metadata
+ php vendor/doctrine/orm/bin/doctrine orm:clear-cache:query
+ php vendor/doctrine/orm/bin/doctrine orm:clear-cache:result
+
+
+ //exibi o sql que será utilizado pra fazer o update
+ php vendor/doctrine/orm/bin/doctrine orm:schema-tool:update --dump-sql
