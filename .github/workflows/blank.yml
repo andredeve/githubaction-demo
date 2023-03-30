@@ -18,5 +18,5 @@ jobs:
           port: 37950
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           local_path: ./* # default is ./*
-          remote_path: 'var/www/html/LxProcessos/demoprcss/html'
+          remote_path: var/www/html/LxProcessos/demoprcss/html
           args: '-o ConnectTimeout=5'
