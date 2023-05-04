@@ -1,0 +1,4 @@
+ALTER TABLE
+    `fase`
+ADD
+    COLUMN `ativo` BOOLEAN NOT NULL DEFAULT 1;

@@ -19,7 +19,7 @@ $(function (){
     /**
      * Busca assíncrona de usuários.
      */
-    let usuariosSelect = $('#select_usuarios_permitidos')
+    let usuariosSelect = $('#select_usuarios_permitidos');
     usuariosSelect.select2({
         ajax: {
             url: usuariosSelect.data("app-action"),

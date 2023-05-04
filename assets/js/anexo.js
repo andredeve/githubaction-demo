@@ -196,12 +196,16 @@ $(document).ready(function () {
         var anexo_id = $(this).attr('anexo_id');
         var indice = $(this).attr('indice');
         var is_digitalizado = $(this).attr('is_digitalizado');
+        var editar_arquivo = $(this).attr('editar_arquivo');
+        var editar_info = $(this).attr('editar_info');
         var tipo = is_digitalizado ? 'digitalizar' : 'upload';
         showLoading();
         $.post(app_path + 'src/App/View/Anexo/editar.php', {
             anexo_id: anexo_id,
             indice: indice,
-            tipo: tipo
+            tipo: tipo,
+            editar_arquivo: editar_arquivo,
+            editar_info: editar_info
         }, function (response) {
             createModal("anexoModal", "Editar Anexo", response, 'modal-lg');
             initDatePicker();
@@ -235,18 +239,15 @@ $(document).ready(function () {
     configurarAcaoExcluirAnexo();
 });
 
-function alertar(anexo_id, processo_id, processo_num, cancelar = false, show_btn_close= true) {
+function alertar(anexo_id, processo_id, cancelar = false, show_btn_close= true) {
     showLoading();
     $.post(app_path + "src/App/View/Notificacao/cadastrar.php", {
         anexo_id: anexo_id,
         processo_id: processo_id,
         cancelar: cancelar? 1 : 0
     }, function (response) {
-        let modal_id = "alertarUsuarioModal";
-        let modal_title = (nomenclatura + " nº " + (processo_num ?? 'S/N'));
-        let modal_content = response;
-        let modal_size = 'modal-elg';
-        createModal(modal_id, modal_title, modal_content, modal_size, show_btn_close);
+        createModal("NotificacaoModal", "Notificar usuários", response, 'modal-lg');
+        initSelect2();
         showLoading();
     }).done(function () {
         hideLoading();
@@ -279,7 +280,7 @@ function configurarAcaoExcluirAnexo() {
             }
         });
     });
-}
+} 
 
 function requisitarRemocaoAnexo(url, processo_id, data, onResult) {
     showLoading();
@@ -531,7 +532,7 @@ function initUploadAnexoProcesso() {
                     overwriteInitial: true,
                     initialPreviewShowDelete: false,
                     language: 'pt-BR',
-                    allowedFileExtensions: ["jpg", "png", "gif", "jpeg", "doc", "docx", "pdf"],
+                    allowedFileExtensions: ["jpg", "png", "gif", "jpeg", "doc", "docx", "pdf", "xsl", "xslx", "mp3", "mp4"],
                     initialPreviewAsData: true, // identify if you are sending preview data only and not the raw markup
                     initialPreviewFileType: 'image', // image is the default and can be overridden in config below
                     initialPreview: previewContent,
@@ -572,7 +573,7 @@ function initUploadAnexoProcesso() {
                 language: 'pt-BR',
                 reversePreviewOrder: true,
                 theme: "fa",
-                'allowedFileExtensions': ['jpg', 'jpeg', 'pdf', 'doc', 'docx', 'png', 'gif'],
+                'allowedFileExtensions': ['jpg', 'jpeg', 'pdf', 'doc', 'docx', 'png', 'gif', "xsl", "xslx", "mp3", "mp4"],
                 layoutTemplates: {
                     main1: "{preview}\n" +
                         "<div class=\'input-group {class}\'>\n" +

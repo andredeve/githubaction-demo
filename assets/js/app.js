@@ -24,7 +24,8 @@ async function readPdfMetadata(urlPdf) {
 
     // Load the PDF document without updating its existing metadata
     let pdfDoc = await PDFDocument.load(pdfBytes, { 
-        updateMetadata: false 
+        updateMetadata: false,
+        ignoreEncryption: true 
     })
     return pdfDoc;
      
@@ -366,29 +367,7 @@ function initValidates() {
         }
     });
     $('.form-validate-rel').validate();
-    /**
-     * =================================================================================
-     *  Jquery Validate para alterar senha de usuário
-     * =================================================================================
-     */
-    /**
-     * Validação de Formulário de alterar senha
-     */
-    $("#alteraSenhaForm").validate({
-        rules: {
-            senha: {minlength: 5},
-            confirmaSenha: {equalTo: "#novaSenha"}
-        },
-        messages: {
-            senha: {minlength: "Senha deve ter no mínimo 5 caracteres"},
-            confirmaSenha: {equalTo: " As senhas informada são diferentes."}
-        },
-        submitHandler: function (form) {
-            var l = Ladda.create(form.querySelector('.ladda-button'));
-            l.start();
-            form.submit();
-        }
-    });
+    
 }
 
 function initFileInput() {
@@ -539,7 +518,7 @@ function initTabelaPesquisaSelecionarEntidade(entidade, $select) {
         if (server_side !== typeof undefined) {
             var col_name = $tr_rel.attr('col_name');
             if (col_name !== typeof undefined) {
-                $tabela.fnFilter($.trim($(this).val()), (index + 1));
+                $tabela.fnFilter($.trim($(this).val()), (cols_select[index]));
             } else {
                 console.log("Atributo 'col_name' não foi encontrado para a coluna: " + $tr_rel.text());
             }
@@ -603,7 +582,10 @@ function initAppEvents() {
             createModal('pesquisaSelecionar' + entidade + 'Modal', 'Pesquisar', response, 'modal-lg');
             let apensadoId = $(".btn-selectionar-entidade").data("apensadoid");
             let processoId = $(".btn-selectionar-entidade").data("processoid");
-            apensadoIdparametro = typeof apensadoId == "undefined" ? '' : '&apensadoId=' + apensadoId
+            if (processoId === undefined) {
+                processoId = "";
+            }
+            apensadoIdparametro = apensadoId === undefined ? '' : '&apensadoId=' + apensadoId
             var id_tabela = "#tabelaPesquisaSelecionar" + entidade;       
             let tableUrl = $(id_tabela).attr('url');
             $(id_tabela).attr('url', tableUrl + '&' + 'processoId=' + processoId + apensadoIdparametro);  

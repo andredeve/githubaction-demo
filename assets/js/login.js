@@ -16,6 +16,9 @@ $(function () {
     /**
      * Botão com classe .closeMessage remove o elemento da tela
      */
+    $('#captcha-reload').click(function () {
+        location.reload();
+    });
     $('.closeMessage').click(function () {
         $(this).parent().fadeOut();
     });
@@ -77,11 +80,13 @@ $(function () {
                     window.location.href = response.objeto_id != null ? response.objeto_id : app_url;
                 } else {
                     l.stop();
-                    if(recaptcha && typeof recaptcha.reset == "function"){
-                        recaptcha.reset();
-                    }
+                    window.location.href = app_url;
+                    // if(recaptcha && typeof recaptcha.reset == "function"){
+                    //     recaptcha.reset();
+                    // }
                 }
                 showGrowMessage(response.tipo, response.msg);
+                
             }, 'json');
             return false;
         }

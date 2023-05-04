@@ -627,6 +627,34 @@ $(document).ready(function () {
                 $(".divRequisitosProximoTramite").addClass('hidden');
             }
         } else {
+            if($('#select_setor_destino option:selected').attr('arquivar')){
+                bootbox.confirm("Tramitar para esse setor é o equivalente à arquivar o processo. Deseja continuar?", function (result) {
+                    if (result){
+                        $('#tramitarProcessoForm').attr('action', app_path + 'processo/arquivar');
+                        $('#tramitarProcessoForm').attr('id', 'arquivarProcessoForm');
+                        $('select[name="status_processo_id[0]"]').prop('disabled', true);
+                        $('select[name="usuario_destino_id[0]"]').prop('disabled', true);
+                        $('input[name="prazo_destino[0]"]').prop('disabled', true);
+                        $('textarea[name="descricao_tramite[0]"]').prop('disabled', true);
+                        $('.divArquivarProcesso').removeClass('hidden');
+                        $(".divRequisitosProximoTramite").addClass('hidden');
+                    } else {
+                        $select_destino.val(setor_id_before).trigger('change');
+                        $("#devolverSetorOrigemCheck").prop('checked', false);
+                        $('.divArquivarProcesso').addClass('hidden');
+                        $(".divRequisitosProximoTramite").removeClass('hidden');
+                    }
+                });
+            } else {
+                $('#arquivarProcessoForm').attr('action', app_path + 'processo/tramitar');
+                $('#arquivarProcessoForm').attr('id', 'tramitarProcessoForm');
+                $('select[name="status_processo_id[0]"]').prop('disabled', false);
+                $('select[name="usuario_destino_id[0]"]').prop('disabled', false);
+                $('input[name="prazo_destino[0]"]').prop('disabled', false);
+                $('textarea[name="descricao_tramite[0]"]').prop('disabled', false);
+                $('.divArquivarProcesso').addClass('hidden');
+                $(".divRequisitosProximoTramite").removeClass('hidden');
+            }
             setUsuariosSetor($sel_usuario, setor_id);
         }
     }).on('change', '#devolverSetorOrigemCheck', function (e) {
@@ -757,6 +785,7 @@ $(document).ready(function () {
     });
     initSelect2Assunto();
     initSelect2Interessado();
+    initSelect2Usuario();
     $("#select_processo_arquivo").select2({
         placeholder: "Selecione",
         minimumInputLength: 1,
@@ -1127,6 +1156,8 @@ $(document).ready(function () {
                         createModal(modal_id, modal_title, response, 'modal-elg');
                         if ($("#tramitarProcessoForm").length) {
                             initValidateTramitarProcessoForm($tabela);
+                        } else if ($("#devolverProcessoForm").length) {
+                            initValidateDevolverProcessoForm($tabela);
                         } else if ($("#arquivarProcessoMassaForm").length) {
                             $("#arquivarProcessoMassaForm").validate({
                                 submitHandler: function (form) {
@@ -1376,20 +1407,22 @@ $(document).ready(function () {
                         if (!$("#processoForm").valid()) {
                             return false;
                         }
-                        setarInformacoesProcesso(false);
                         //Processa requisitos para abertura
-                        showLoading();
-                        $.post(app_path + 'src/App/View/Tramite/requisitos.php', {
-                            assunto_id: assunto_id,
-                            numero_fase: 1,
-                            setor_id: null
-                        }, function (response) {
-                            $("#tabRequisitos").html(response).fadeIn();
-                            initFormRules();
-                            initSelect2Processos();
-                        }).done(function () {
-                            hideLoading();
-                        });
+                        if ($("#tabRequisitos").children().length === 0) {
+                            setarInformacoesProcesso(false);
+                            showLoading();
+                            $.post(app_path + 'src/App/View/Tramite/requisitos.php', {
+                                assunto_id: assunto_id,
+                                numero_fase: 1,
+                                setor_id: null
+                            }, function (response) {
+                                $("#tabRequisitos").html(response).fadeIn();
+                                initFormRules();
+                                initSelect2Processos();
+                            }).done(function () {
+                                hideLoading();
+                            });
+                        }
                         $('html, body').animate({scrollTop: 0}, 'slow');
                         $("#btn_submit").hide();
                     }else if (index == 2) {
@@ -2233,7 +2266,31 @@ $(document).ready(function () {
                         retorno_tramite = true;
                     }
                 }
-                return retorno_processo && retorno_tramite;
+                var retorno_arquivamento = true;
+                if ($("#data_arquivamento_ini").length && $("#data_arquivamento_fim").length) {
+                    var iFini = $("#data_arquivamento_ini").val();
+                    var iFfin = $("#data_arquivamento_fim").val();
+                    var iStartDateCol = 10;
+                    var iEndDateCol = 10;
+
+                    iFini = iFini.substring(6, 10) + iFini.substring(3, 5) + iFini.substring(0, 2);
+                    iFfin = iFfin.substring(6, 10) + iFfin.substring(3, 5) + iFfin.substring(0, 2);
+
+                    var datofini = aData[iStartDateCol].substring(6, 10) + aData[iStartDateCol].substring(3, 5) + aData[iStartDateCol].substring(0, 2);
+                    var datoffin = aData[iEndDateCol].substring(6, 10) + aData[iEndDateCol].substring(3, 5) + aData[iEndDateCol].substring(0, 2);
+
+                    retorno_arquivamento = false;
+                    if (iFini === "" && iFfin === "") {
+                        retorno_arquivamento = true;
+                    } else if (iFini <= datofini && iFfin === "") {
+                        retorno_arquivamento = true;
+                    } else if (iFfin >= datoffin && iFini === "") {
+                        retorno_arquivamento = true;
+                    } else if (iFini <= datofini && iFfin >= datoffin) {
+                        retorno_arquivamento = true;
+                    }
+                }
+                return retorno_processo && retorno_tramite && retorno_arquivamento;
             }
         );
         $(".tabela-processos-relatorio").dataTable({
@@ -2300,12 +2357,23 @@ $(document).ready(function () {
                 var $tabela = $(this);
                 $tabela.fadeIn();
                 var datatable = $tabela.dataTable();
-                var $exercicio = $('#relatorioAbertosForm').find('.exercicio_filter');
-                var $setor_atual = $('#relatorioAbertosForm').find('.setor_atual_filter');
-                var $responsavel = $('#relatorioAbertosForm').find('.responsavel_filter');
-                var $assunto = $('#relatorioAbertosForm').find('.assunto_filter');
-                var $interessado = $('#relatorioAbertosForm').find('.interessado_filter');
-                var $agrupar = $('#relatorioAbertosForm').find('.agrupar_filter');
+                if ($("#relatorioAbertosForm").length){
+                    var $exercicio = $('#relatorioAbertosForm').find('.exercicio_filter');
+                    var $setor_atual = $('#relatorioAbertosForm').find('.setor_atual_filter');
+                    var $responsavel = $('#relatorioAbertosForm').find('.responsavel_filter');
+                    var $assunto = $('#relatorioAbertosForm').find('.assunto_filter');
+                    var $interessado = $('#relatorioAbertosForm').find('.interessado_filter');
+                    var $agrupar = $('#relatorioAbertosForm').find('.agrupar_filter');
+                }
+
+                if ($("#relatorioArquivadosForm").length){
+                    var $exercicio = $('#relatorioArquivadosForm').find('.exercicio_filter');
+                    var $setor_atual = $('#relatorioArquivadosForm').find('.setor_atual_filter');
+                    var $responsavel = $('#relatorioArquivadosForm').find('.responsavel_filter');
+                    var $assunto = $('#relatorioArquivadosForm').find('.assunto_filter');
+                    var $interessado = $('#relatorioArquivadosForm').find('.interessado_filter');
+                    var $agrupar = $('#relatorioArquivadosForm').find('.agrupar_filter');
+                }
                 $exercicio.change(function () {
                     datatable.fnFilter($(this).find('option:selected').text(), 2);
                 });
@@ -2336,7 +2404,7 @@ $(document).ready(function () {
                     }
                     datatable.fnDraw();
                 });
-                $('#data_processo_ini,#data_processo_fim,#data_tramite_ini,#data_tramite_fim').change(function () {
+                $('#data_processo_ini,#data_processo_fim,#data_arquivamento_ini,#data_arquivamento_fim,#data_tramite_ini,#data_tramite_fim').change(function () {
                     datatable.fnDraw();
                 });
             },
@@ -2523,11 +2591,13 @@ $(document).ready(function () {
     }).on('change', '#select_tipo_pessoa', function () {
         var tipo = $(this).val();
         if (tipo == 'fisica') {
+            $("#nome").text('Nome');
             $("#divPessoaJuridica").hide();
             $("#cpf").attr("required",true);
             $("#cnpj").removeAttr("required");
             $("#divPessoaFisica").fadeIn();
         } else {
+            $("#nome").text('Razão Social');
             $("#divPessoaFisica").hide();
             $("#cnpj").attr("required",true);
             $("#cpf").removeAttr("required");
@@ -2742,7 +2812,33 @@ function initSelect2Interessado() {
             });
         }
     });
+}
 
+function initSelect2Usuario() {
+    $('.select_usuario').each(function () {
+        if (!$(this).hasClass("select2-hidden-accessible")) {
+            $(this).select2({
+                placeholder: "Busque por um  usuário",
+                minimumInputLength: 3,
+                language: "pt-BR",
+                width: '100%',
+                allowClear: true,
+                multiple: false,
+                ajax: {
+                    url: app_path + "src/Core/Ajax/select2_ajax_response.php?entidade=Usuario",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) { // page is the one-based page number tracked by Select2
+                        return {
+                            search: params.term, //search term
+                            page: params.page || 1 // page number
+                        };
+                    },
+                    cache: true
+                }
+            });
+        }
+    });
 }
 
 function initSelect2Tree() {
@@ -2859,6 +2955,62 @@ function initValidateTramitarProcessoForm($tabela = null) {
                     hideLoading();
                 });
             });
+        }
+    });
+}
+
+function initValidateDevolverProcessoForm($tabela = null) {
+    initTooltip();
+    
+    $("#devolverProcessoForm").validate({
+        ignore: ":hidden, .select2-search__field, .ignore-validate",
+        submitHandler: function (form) {
+            var l = Ladda.create(form.querySelector('.ladda-button'));
+            var gerar_guia = $(form).find('input[type=checkbox][name=gerar_guia_tramitacao]').is(':checked');
+            $(form).ajaxSubmit({
+                beforeSubmit: function () {
+                    l.start();
+                },
+                dataType: 'json',
+                success: function (response) {
+                    if (response.tipo == 'success') {
+                        let reload_page = $("#btn-recusar-processo").attr('reload_page') !== undefined;
+                        if(reload_page){
+                            showLoading();
+                            window.location.reload();
+                        }else if($tabela !== null){
+
+                            /** ########### INICIO CORREÇÕES DEVIDO A INTERNET LENTA ########## */
+                            //Remove todos os checkeds
+                            $tabela.find('input').each(function (){
+                                $(this).prop("checked", false);
+                            });
+
+                            //Desabilita os checkbox do body da tabela
+                            $tabela.find('tbody input').each(function (){
+                                $(this).attr('disabled', 'disabled');
+                            });
+
+                            $tabela.find('button').each(function (){
+                                $(this).attr('disabled', 'disabled');
+                            });
+                            /** ########### FIM CORREÇÕES DEVIDO A INTERNET LENTA ########## */
+
+
+                            $tabela.dataTable().api().ajax.reload(null, false);
+                        }
+
+                        atualizarContadoresProcesso();
+                        $(form).closest('.modal').modal('hide');
+                        if (gerar_guia) {
+                            window.open(app_path + 'remessa/imprimir/' + response.objeto_id);
+                        }
+                    }
+                    showGrowMessage(response.tipo, response.msg);
+                    l.stop();
+                }
+            });
+            return false;
         }
     });
 }
@@ -3944,14 +4096,15 @@ function alternarEntradaNumeroAnexo(thisObject, id){
     let isChecked = $checkbox.is(":checked");
     if (isChecked) {
         element.removeAttr("required");
+        element.attr("disabled", true);
         $checkbox.val(1);
         element.addClass("ignore-validate")
     } else {
         element.attr("required", true);
+        element.removeAttr("disabled");
         $checkbox.val(0);
         element.removeClass("ignore-validate");
     }
-    element.attr("disabled",thisObject.checked).val(null);
 }
 
 function validarCPF($input) {
