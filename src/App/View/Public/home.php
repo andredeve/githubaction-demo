@@ -6,6 +6,7 @@ use App\Controller\UsuarioController;
 use App\Enum\TipoUsuario;
 use App\Model\StatusProcesso;
 
+
 die('Teste');
 
 $smarty->assign('page_title', 'Início');
