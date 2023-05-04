@@ -31,8 +31,8 @@
         {else}
             {$setores_fase=null}
         {/if}
-        <div id="divFluxograma" {if $usuarioIsExterno}style="display: none;" {/if}>
-            <span><b>Interessado: </b>{$processo->getInteressado()}</span>
+        <div id="divFluxograma" {if $usuarioIsExterno}style="display: none;"{/if}>
+            <span><b>Interessado: </b>{$processo->getInteressado(true)}</span>
             {include file="../../Tramite/Templates/fluxograma.tpl"}
         </div>
     {/if}
@@ -56,7 +56,7 @@
                                 <td><input type="checkbox" name="tramite_id[]" value="{$tramite->getId()}" checked /></td>
                                 <td>{$processo}</td>
                                 <td>{$processo->getAssunto()}</td>
-                                <td>{$processo->getInteressado()}</td>
+                                <td>{$processo->getInteressado(true)}</td>
                                 <td>{$tramite->getSetorAtual()}</td>
                             </tr>
                         {/foreach}
@@ -91,7 +91,11 @@
                     </small>
                 </div>
                 <div id="divDestino">
-                    {include file="../../Tramite/Templates/destino.tpl"}
+                    {if isset($assunto) and count($temSetores) > 0}
+                        {include file="../../Tramite/Templates/destino.tpl" setores=$temSetores}
+                    {else}
+                        {include file="../../Tramite/Templates/destino.tpl"}
+                    {/if}
                 </div>
             {else}
                 {if !is_null($tramite) && $tramite->getForaFluxograma() eq false}
@@ -139,12 +143,20 @@
             {/if}
         {else}
             <input type="hidden" name="arquivar" value="0" />
-            {include file="../../Tramite/Templates/destino.tpl"}
+            {if isset($assunto) and count($temSetores) > 0}
+                {include file="../../Tramite/Templates/destino.tpl" setores=$temSetores}
+            {else}
+                {include file="../../Tramite/Templates/destino.tpl"}
+            {/if}
         {/if}
         {if isset($tramite) and !empty($tramite) and (!isset($disableRequimentoDeDocumentacao) or !$disableRequimentoDeDocumentacao)}
             <div class="divRequisitosProximoTramite {if $tramite->temFluxograma()} hidden{/if}">
                 <hr>
                 {include file="../../Tramite/Templates/documento_requerido.tpl"}
+            </div>
+            <div class="divArquivarProcesso hidden">
+                <hr>
+                {include file="../../Processo/Templates/arquivar.tpl" modal=true}
             </div>
         {/if}
         {if $form eq true}

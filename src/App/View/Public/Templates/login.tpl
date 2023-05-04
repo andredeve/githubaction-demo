@@ -42,8 +42,17 @@
                                    required="true"/>
                         </div>
                     </div>
-                    <!--<div  class="g-recaptcha" data-sitekey="6LfW_tgUAAAAALMCsTbYdDxgV6-XvTlF7HYzOsSk" ></div>-->
-                    <div class="g-recaptcha" data-sitekey="{$data_site_key}"></div>
+                    <div class="form-group">
+                        <img src="{$app_url}src/App/View/Public/captcha.php" alt="Código Captcha LxCaptcha"><br>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><i class="fa fa-check"></i></div>
+                            </div>
+                            <input type="text" name="captcha" class="form-control form-control-lg" autofocus="true"
+                                            placeholder="Digite o Código da Imagem" required="true"/>
+                            <button class="btn btn-info" type="button" id="captcha-reload"><i class="fa fa-refresh"></i></button>
+                        </div>
+                    </div>  
                     <div class="form-group mt-2">
                         <button type="submit" class="btn btn-info btn-block btn-lg ladda-button" data-style="zoom-in"><i
                                     class="glyphicon glyphicon-log-in"></i> Entrar
@@ -63,6 +72,7 @@
                 </form>
             </div>
         </div>
+
         <p class="text-center footer invisible">
             <small> © 2017. Desenvolvido pela <em><a title="Visitar site" target="_blank"
                                                      href="{$app_config['author_link']}">{$app_config['app_author']}</a></em>.
@@ -73,17 +83,5 @@
 {include file="senha.tpl"}
 <script src='https://www.google.com/recaptcha/api.js'></script>
 <script type="text/javascript" src="{$app_url}min/g=loginJs"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        $("#loginForm").submit(function() {
-        $.ajax({
-            type: "POST",
-            complete: function() {
-                grecaptcha.reset();     
-                }}
-            )}
-        )}
-    )
-</script>
 </body>
 </html>

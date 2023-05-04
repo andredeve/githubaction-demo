@@ -21,7 +21,8 @@ if (isset($_POST["processo_id"])){
     $anexo = (new Anexo())->buscar($_POST["anexo_id"]);
     $smarty->assign('processo', $processo);
     $smarty->assign('anexo', $anexo);
-    $smarty->assign('conteudo', 'Processo: ' . $processo->getNumero() . '&#13;&#10;Tipo de Documento: ' . $anexo->getTipo() . '&#13;&#10;Descrição: ' . $anexo->getDescricao() . '&#13;&#10;Data: ' . $anexo->getData(true) . '&#13;&#10;Número: ' . $anexo->getNumero());
+    $conteudo = array('Processo: ' . $processo->getNumero(), ' Tipo de Documento: ' . $anexo->getTipo(), ' Descrição: ' . $anexo->getDescricao(), ' Data: ' . $anexo->getData(true), ' Número: ' . $anexo->getNumero());
+    $smarty->assign('conteudo', $conteudo);
 
 }
 $smarty->assign('page_title', 'Nova Notificação');

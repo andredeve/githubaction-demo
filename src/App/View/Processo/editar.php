@@ -13,6 +13,7 @@ use App\Model\SubTipoLocal;
 use Core\Controller\AppController;
 use App\Controller\UsuarioController;
 use App\Controller\AnexoController;
+use App\Controller\SubstituicaoController;
 use App\Controller\IndexController;
 use Core\Util\Functions;
 use Doctrine\ORM\ORMException;
@@ -42,6 +43,14 @@ foreach ($processo->getAnexos() as &$item) {
         $item->status = $anexosStatus[$assinatura->getLxsign_id()];
     }
 }
+
+$substituicao = new SubstituicaoController();
+foreach ($processo->getAnexos() as $anexo){
+    foreach ($substituicao->buscarSubstituicoesAnexo($anexo->getId()) as $anexoOld){
+        $substituido[] = $anexoOld->getAnexo()->getId();
+    }
+}
+$smarty->assign('substituido', $substituido);
 $processo->contribuinteMarcarComoRecebido();
 $usuarioEhInteressado = $user->isInteressado();
 $processo->contribuinteMarcarComoRecebido();

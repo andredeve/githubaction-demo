@@ -1,4 +1,6 @@
-<form id="arquivarProcessoForm" method="POST" class="form-horizontal" action="{$app_url}processo/arquivar">
+{if !isset($modal)}
+    <form id="arquivarProcessoForm" method="POST" class="form-horizontal" action="{$app_url}processo/arquivar">
+{/if}
     <input type="hidden" name="processo_id" value="{$processo->getId()}"/>
     <div class="form-group">
         <label>Assunto:</label>
@@ -22,13 +24,14 @@
             {include file="../../Processo/Templates/localizacao.tpl"}
         </div>
     </div>
-    <hr/>
-    <div class="form-group">
-        <button type="submit" data-style="expand-right" class="btn btn-primary ladda-button"><i
-                    class="fa fa-archive"></i> Arquivar
-        </button>
-        <a href="#" class="btn btn-light border" onclick="$(this).closest('.modal').modal('hide');"><i
-                    class="fa fa-times"></i> Cancelar</a>
-    </div>
+    {if !isset($modal)}
+        <hr/>
+        <div class="form-group">
+            <button type="submit" data-style="expand-right" class="btn btn-primary ladda-button"><i
+                        class="fa fa-archive"></i> Arquivar
+            </button>
+            <a href="#" class="btn btn-light border" onclick="$(this).closest('.modal').modal('hide');"><i
+                        class="fa fa-times"></i> Cancelar</a>
+        </div>
 </form>
-
+{/if}

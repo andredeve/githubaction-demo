@@ -22,8 +22,8 @@ class MigrationS1 extends MigrationHelper
                 $this->criarTabelaAnexoAlteracao();
             }
             $this->atualizarTabelaSolicitacao();
+            $this->atualizarSolicitacoesView();
         }
-        $this->atualizarSolicitacoesView();
     }
 
     public function validate(): bool

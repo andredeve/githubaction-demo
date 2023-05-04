@@ -21,9 +21,12 @@
         {$anexos = $anexos->toArray()}
     {/if}
     {foreach $anexos as $i=>$anexo}
+        {if $consultar && $anexo->getIsCirculacaoInterna() && !$usuario_logado }
+           {continue}
+        {/if}
         <tr>
             <td>{$anexo->getID()}</td>
-            <td style="text-align: left!important;" pode-assinar="{$anexo->podeMandarParaAssinatura()}">{$anexo->getTipo()}</td>
+            <td style="text-align: left!important;" pode-assinar="{$anexo->podeMandarParaAssinatura()}">{$anexo->getTipo()}{if in_array($anexo->getId(), $substituido)}<i class="fa fa-exclamation-triangle fa-lg text-warning" title="O arquivo desse anexo foi substituído. Para verificar as versões anteriores, cheque o histórico"></i>{/if}</td>
             <td>{$anexo->getDescricao()}</td>
             <td data-order="{if $anexo->getData() neq null}{$anexo->getData()->format('Y-m-d')}{/if}"
                 class="text-center">{$anexo->getData(true)}</td>
@@ -47,6 +50,10 @@
                     {elseif $anexo->status eq 'Pré-Cadastro'}
                         <span class="badge badge-warning">
                             PRÉ-CADASTRO
+                        </span>
+                    {elseif $anexo->status eq 'Cancelado'}
+                        <span class="badge badge-secondary">
+                            CANCELADO
                         </span>
                     {/if}
                 {else}
@@ -107,7 +114,7 @@
                         <a data-title="{$anexo}" data-lightbox="anexo_{$anexo->getId()}"
                            href="{$anexo->getPathUrl()}{$anexo->getArquivo()}" class="btn btn-xs btn-warning"><i
                                     class='fa fa-search'></i> </a>
-                    {elseif !is_null($anexo->getId())}
+                    {elseif !is_null($anexo->getArquivo()) and !is_null($anexo->getId())}
                         <a target="_blank" href="{$app_url}anexo/abrirArquivoAnexo/{$anexo->getId()}"
                            class="btn btn-xs btn-warning"><i class='fa fa-search'></i></a>
                     {else}
@@ -123,11 +130,26 @@
                                 <i class="fa  fa-paper-plane-o"></i>
                             </a>
                         {/if}
-                        <a anexo_id="{$anexo->getId()}" indice="{$i}" is_digitalizado="{$anexo->getIsDigitalizado()}"
+                        <div class="dropdown">
+                            <a class="btn btn-xs btn-info dropdown-toggle" href="#" role="button" id="dropdownEditar{$anexo->getId()}" data-toggle="dropdown" aria-expanded="false">
+                                <i class='fa fa-edit'></i>
+                            </a>
+
+                            <div class="dropdown-menu" aria-labelledby="dropdownEditar{$anexo->getId()}">
+                                <a editar_info=1 anexo_id="{$anexo->getId()}" indice="{$i}" is_digitalizado="{$anexo->getIsDigitalizado()}"
+                                href="#" nome_arquivo="{$anexo->getArquivo()}" title="Editar informações do anexo"
+                                class="dropdown-item btn-editar-anexo{if $hasAttachAddPermission neq true} disabled {/if}"> Editar informações </a>
+
+                                <a editar_arquivo=1 anexo_id="{$anexo->getId()}" indice="{$i}" is_digitalizado="{$anexo->getIsDigitalizado()}"
+                                href="#" nome_arquivo="{$anexo->getArquivo()}" title="Substituir arquivo"
+                                class="dropdown-item btn-editar-anexo{if $hasAttachAddPermission neq true} disabled {/if}"> Substituir Arquivo </a>
+                            </div>
+                        </div>
+                        {* <a anexo_id="{$anexo->getId()}" indice="{$i}" is_digitalizado="{$anexo->getIsDigitalizado()}"
                            href="#" nome_arquivo="{$anexo->getArquivo()}" title="Editar anexo"
                            class="btn btn-xs btn-info btn-editar-anexo {if $hasAttachAddPermission neq true} disabled {/if}">
                             <i class="fa fa-edit"></i>
-                        </a>
+                        </a> *}
 
                         <a data-toggle="modal"
                            processo-id="{$anexo->getProcesso()->getId()}"
@@ -145,7 +167,7 @@
                            class="btn btn-xs btn-danger btn-excluir-anexo {if $hasAttachAddPermission neq true} disabled {/if}">
                             <i class="fa fa-trash"></i>
                         </a>
-
+                        
                     {/if}
                 </div>
             </td>

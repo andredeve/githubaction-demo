@@ -208,17 +208,21 @@ class Interessado extends AppModel
          *
         */
         $usuario = new Usuario();
+        $usuario->setPessoa($this->getPessoa());
+        //Caso seja um cadastro externo, o usuário é cadastrado como inativo
+        if($_POST['isExterno']){
+            $usuario->setAtivo(false);
+        //Caso não seja um cadastro externo, ou seja, foi feito por um usuário do sistema,
+        //gera uma senha e envia para o usuário.
+        } else {
+            $senha_temp = Functions::geraSenha(8, true, true);
+            $usuario->setSenha(Usuario::codificaSenha($senha_temp));
+            $_POST['isInterno'] = 1;
+            (new Email())->enviarSenhaUsuario($usuario, $senha_temp);
+        }
         $usuario->setTipo(TipoUsuario::INTERESSADO);
         $usuario->setLogin($this->getPessoa()->getCpf() ?? $this->getPessoa()->getCnpj());
         $usuario->setCargo('Contribuinte');
-        $usuario->setPessoa($this->getPessoa());
-        if(isset($_POST['transformar'])){
-            $senha_temp = Functions::geraSenha(8, true, true);
-            $usuario->setSenha(Usuario::codificaSenha($senha_temp));
-            (new Email())->enviarSenhaUsuario($usuario, $senha_temp);
-        } else {
-            $usuario->setSenha(Usuario::codificaSenha($_POST['senha_confirma']??''));
-        }
         $usuario->inserir();
     }
 }

@@ -266,8 +266,8 @@ class JobsConverter{
             $shellResponse = ""; 
             if( Core\Controller\AppController::getConversaoConfig("pdf_a") ){
                 echo "\n pdf-a \n";
-//                $shellResponse = shell_exec( "gs -dPDFA -sDEVICE=pdfwrite -dCompatibilityLevel=1.4  -sProcessColorModel=DeviceCMYK -dAutoRotatePages=/None -dFitPage -dNOPAUSE -dQUIET -dBATCH -sPDFACompatibilityPolicy=1  -sOutputFile=\"{$arquivoConvertido}\" \"{$fileTmp}\" 2>&1; echo $?"); 
-                $shellResponse = shell_exec( "gs -dPDFA=2 -sDEVICE=pdfwrite -dPDFACompatibilityPolicy=1 -dNOPAUSE -r600 -dBATCH  -dAutoRotatePages=/None -dQUIET -sOutputFile=\"{$arquivoConvertido}\" \"{$fileTmp}\" 2>&1; echo $?"); 
+                //                $shellResponse = shell_exec( "gs -dPDFA -sDEVICE=pdfwrite -dCompatibilityLevel=1.4  -sProcessColorModel=DeviceCMYK -dAutoRotatePages=/None -dFitPage -dNOPAUSE -dQUIET -dBATCH -sPDFACompatibilityPolicy=1  -sOutputFile=\"{$arquivoConvertido}\" \"{$fileTmp}\" 2>&1; echo $?"); 
+                $shellResponse = shell_exec( "gs -dPDFA=2 -sDEVICE=pdfwrite -dPDFACompatibilityPolicy=1 -sProcessColorModel=DeviceCMYK  -dNOPAUSE -r600 -dBATCH  -dAutoRotatePages=/None -dQUIET -sOutputFile=\"{$arquivoConvertido}\" \"{$fileTmp}\" 2>&1; echo $?"); 
             }else{
                 echo "\n nao é pdf-a \n";
                 $shellResponse = shell_exec( "gs -dMaxBitmap=100000000 -dBufferSpace=400000000 -dDetectDuplicateImages=true -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -sOutputFile=\"{$arquivoConvertido}\" \"{$fileTmp}\" 2>&1; echo $?"); 

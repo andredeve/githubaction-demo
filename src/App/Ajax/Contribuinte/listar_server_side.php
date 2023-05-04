@@ -107,7 +107,7 @@ function criarBotoesAcoesProcesso($processo, $setor_atual, $processo_id, $tramit
         $button .= "<a processo_id=\"{$processo_id}\" processo=\"$processo\" class=\"dropdown-item btn-arquivar-processo\" title=\"Arquivar Processo\" href=\"{$app_url}tramite/tramitar/id/{$tramite_id}/\"><i class=\"fa fa-folder-open-o\"></i> Arquivar</a>";
     }
     $button .= " <a class=\"dropdown-item btn-loading\" title=\"Editar\" href=\"{$app_url}contribuinte/editar/id/{$processo_id}\"><i class=\"fa fa-edit\"></i> Editar</a>"
-        . "<a processo=\"$processo\" class=\"dropdown-item btn-excluir-processo\" title=\"Excluir\" href=\"{$app_url}contribuinte/excluir/id/{$processo_id}\"><i class=\"fa fa-trash-o\"></i> Excluir</a>"
+        // . "<a processo=\"$processo\" class=\"dropdown-item btn-excluir-processo\" title=\"Excluir\" href=\"{$app_url}contribuinte/excluir/id/{$processo_id}\"><i class=\"fa fa-trash-o\"></i> Excluir</a>"
         . "</div>"
         . "</div>";
     return $button;

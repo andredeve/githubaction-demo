@@ -2,6 +2,8 @@
 
 namespace App\Model;
 
+use App\Enum\TipoUsuario;
+use Doctrine\Common\Collections\ArrayCollection;
 use Core\Interfaces\EntityInterface;
 use Core\Model\AppDao;
 use Core\Model\AppModel;
@@ -72,6 +74,12 @@ class Assunto extends AppModel implements EntityInterface
     private $assuntoPai;
 
     /**
+     * @ManyToMany(targetEntity="Setor", mappedBy="assuntos")
+     * @JoinTable(name="setores_assuntos")
+     */
+    private $setores;
+
+    /**
      * @type Fluxograma
      * @OneToOne(targetEntity="Fluxograma", mappedBy="assunto")
      */
@@ -119,9 +127,9 @@ class Assunto extends AppModel implements EntityInterface
     {
         $subAssuntos = array();
         foreach ((new Assunto())->listarPorCampos(array('assuntoPai' => $this)) as $assunto) {
-            if ($assunto->getFluxograma() != null) {
+            //if ($assunto->getFluxograma() != null) {
                 $subAssuntos[] = $assunto;
-            }
+            //}
         }
         return $subAssuntos;
     }
@@ -383,5 +391,46 @@ class Assunto extends AppModel implements EntityInterface
     static function getAssuntosExternos(): ?array
     {
         return AppDao::listarPor(get_called_class(), array('isExterno'=>'1'), array('descricao'=>'ASC'));
+    }
+    
+    public function setSetores($setores): void
+    {
+        $this->setores = $setores;
+    }
+
+    /**
+     * @return Setor[]|Collection|null
+     * @throws Exception
+     * @throws ORMException
+     */
+    public function getSetores($usuario_logado)
+    {
+        if ($usuario_logado == TipoUsuario::MASTER) {
+            return (new Setor())->listarAtivos();
+        }
+        $setores = new ArrayCollection();
+        foreach ($this->setores as $setor) {
+            if ($setor->getIsAtivo()) {
+                $setores->add($setor);
+            }
+        }
+        return $setores;
+    }
+
+    public function getSetoresIds($text = false)
+    {
+        $ids = array();
+        foreach ($this->setores as $setor) {
+            $ids[] = $setor->getId();
+        }
+        return $text ? implode(',', $ids) : $ids;
+    }
+
+    public function postPersistAndUpdateSetor(Assunto $assunto)
+    {
+        foreach($_POST['setores'] as $setor){
+            $setor->adicionaAssunto($assunto);
+            $setor->atualizar();
+        }
     }
 }

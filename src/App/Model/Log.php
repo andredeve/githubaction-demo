@@ -31,7 +31,9 @@ class Log extends AppModel
 
     /**
      * @ManyToOne(targetEntity="Usuario")
-     * @JoinColumn(name="usuario_id", referencedColumnName="id",nullable=true,onDelete="CASCADE")
+     * @JoinColumn(name="usuario_id", 
+     *      referencedColumnName="id",
+     *      nullable=true,onDelete="CASCADE")
      */
     private $usuario;
 
@@ -187,12 +189,16 @@ class Log extends AppModel
 	 */
 	static function registrarLog($tipo, $tabela, $mensagem, Usuario $usuario = null, $antigo = null, $novo = null)
     {
-        if(isset($_SESSION["execucao_script"]) && $_SESSION["execucao_script"] == true ){
+        if(isset($_SESSION["execucao_script"]) && $_SESSION["execucao_script"]){
             return;
         }
         $log = new Log();
         if($tabela == 'log' ){
             return true;
+        }
+        $ip = Functions::getUserIp();
+        if(is_null($ip) && defined('STDIN') ) {
+            $ip = "127.0.0.1";
         }
         $usuarioLog = $usuario == null ? (UsuarioController::getUsuarioLogadoDoctrine()) : $usuario;
         $log->setUsuario($usuarioLog);
@@ -202,7 +208,7 @@ class Log extends AppModel
         $log->setTabela($tabela);
         $log->setAntigo($antigo);
         $log->setNovo($novo);
-        $log->setIp(Functions::getUserIp());
+        $log->setIp($ip);
         $log->inserir(false);
     }
 

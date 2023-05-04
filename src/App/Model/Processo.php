@@ -281,7 +281,16 @@ class Processo extends AppModel
     {
         return md5($this->getId().'.'. $this->getSetorAtual()->getId(). '.'. $this->getInteressado()->getId());
     }
-
+    public function getAnexosConsultaPublica(){
+        $anexos = array();
+        foreach($this->getAnexos() as $anexo){
+            if($anexo->getIsCirculacaoInterna()){
+                continue;
+            }
+            $anexos[] =$anexo;
+        }
+        return $anexos;
+    } 
     /**
      * @return Componente[]|Collection
      * @throws \Doctrine\ORM\Exception\ORMException
@@ -293,7 +302,6 @@ class Processo extends AppModel
      */
     function getComponentes(bool $tramite = false, $paginado = false): ?Array
     {
-        set_time_limit(300);
         $this->componentes = new ArrayCollection();
         $qtdPaginas = (isset($_POST["qtdPaginas"]) && !empty($_POST["qtdPaginas"])) ? $_POST["qtdPaginas"] : 1;
         $config = AppController::getClienteConfig();
@@ -360,7 +368,7 @@ class Processo extends AppModel
                             $pagInicial = $qtdPaginas + 1;
                             $qtdPaginas = $this->paginar($c, $qtdPaginas , $config);
                             $c->setPaginacao("{$pagInicial}-{$qtdPaginas}");
-                            $c->atualizar();
+                            $c->atualizar(true, false);
                         } catch (Exception $e) {
                             Functions::escreverLogErro($e);
                         }
@@ -402,6 +410,141 @@ class Processo extends AppModel
         continuem a partir da última folha do processo anterior
         */
         $_POST["qtdPaginas"] = $qtdPaginas;
+        return $this->componentes->toArray();
+    }
+
+    function getComponentesDebug(bool $tramite = false, $paginado = false): ?Array
+    {
+        echo "<pre>";
+        echo "============================ Debug de paginação - Início ============================" . PHP_EOL;
+        $this->componentes = new ArrayCollection();
+        $qtdPaginas = (isset($_POST["qtdPaginas"]) && !empty($_POST["qtdPaginas"])) ? $_POST["qtdPaginas"] : 1;
+        $config = AppController::getClienteConfig();
+        /**
+         * @var Componente $c
+         */
+        foreach($this->getComponentesOrdenadoPorData() as $c){
+            echo PHP_EOL;
+            $componente = new Componente();
+            $componente->setProcesso($this);
+            echo "Iniciando análise de paginação." . PHP_EOL;
+            if ($c instanceof Anexo) {
+                echo "Componente contendo anexo: {$c->getId()}." . PHP_EOL;
+                $componente->setQntdePaginas($c->getQtdePaginas());
+                $componente->setAnexo($c);
+                $assinatura = new Assinatura();
+                $assinatura = $assinatura->buscarPorAnexo($c);
+                if(!empty($assinatura)){
+                    $app = AppController::getConfig();
+                    $url = $app["lxsign_url"]."documento/versaoImpressa/".$assinatura->getLxsign_id();
+                    $opts = array(
+                        "ssl"=>array(
+                            "verify_peer"=>false,
+                            "verify_peer_name"=>false,
+                        )
+                    );
+                    $context = stream_context_create($opts);
+                    $filePdf = file_get_contents($url, false, $context);
+                    if($filePdf && !str_contains($filePdf, "Documento cancelado ou excluído")){
+                        $copyPath = "/tmp/anexo_{$c->getId()}.pdf";
+                        file_put_contents($copyPath, $filePdf);
+                        $pdf_path = $c->getArquivo(false, false, true, true);
+                        copy($copyPath, $pdf_path);
+                    } else {
+                        $pdf_path = $c->getArquivo(false, false, true);
+                    }
+                } else {
+                    $pdf_path = $c->getArquivo(false, false, true);
+                }
+                echo "Diretório do arquivo: $pdf_path." . PHP_EOL;
+                if ($paginado && file_exists($pdf_path)) {
+                    //Não numera de novo, caso a opção seja de download dos arquivos
+                    if(isset($_POST['download']) && !empty($_POST['download'])){
+                        $this->componentes->add($componente);
+                        continue;
+                    }
+                    if (Functions::isDocument($pdf_path)) {
+                        if (pathinfo($pdf_path, PATHINFO_EXTENSION) === 'doc') {
+                            // Não suportado
+                            continue;
+                        }
+                        $newFilePdf = Functions::docToPdf($pdf_path);
+                        $c->setArquivo(basename($newFilePdf));
+                        $c->atualizar();
+                    } else if (Functions::isImage($pdf_path)) {
+                        $newFilePdf = Functions::imageToPdf($pdf_path);
+                        $c->setArquivo(basename($newFilePdf));
+                        $c->atualizar();
+                    }
+                    /*
+                     * 1- Verificar se é paginado;
+                     * 2- Caso paginado, verificar se a paginacao é correta;
+                     * 3- Caso a paginação não seja correta, repaginar;
+                     * 4- Caso não seja paginado, paginar.
+                     */
+                    if (empty($c->getPaginacao()) || file_exists($c->getArquivo(false, false, true, true))) {
+                        echo "Documento não paginado." . PHP_EOL;
+                        try {
+                            $pagInicial = $qtdPaginas + 1;
+                            $qtdPaginas = $this->paginar($c, $qtdPaginas , $config);
+                            echo "Arquivo paginado: $qtdPaginas no total." . PHP_EOL;
+                            $c->setPaginacao("{$pagInicial}-{$qtdPaginas}");
+                            $c->atualizar();
+                        } catch (Exception $e) {
+                            echo "A paginação falhou." . PHP_EOL;
+                            Functions::escreverLogErro($e);
+                        }
+                    } else {
+                        echo "Validando paginação atual... ";
+                        $numUltPag = $c->getNumeroUltimaPagina();
+                        $totalPag = $qtdPaginas + Functions::getQntdePaginasPDF($c->getArquivo(false, false, true));
+                        if ($numUltPag !== $totalPag) {
+                            echo "inválida." . PHP_EOL;
+                            echo "Repaginando... ";
+                            try {
+                                $pagInicial = $qtdPaginas + 1;
+                                $qtdPaginas = $this->paginar($c, $qtdPaginas, $config);
+                                $c->setPaginacao("{$pagInicial}-{$qtdPaginas}");
+                                $c->atualizar(true, false);
+                                echo "ok." . PHP_EOL;
+                            } catch (Exception $e) {
+                                echo "falhou." . PHP_EOL;
+                                echo $e->getMessage() . PHP_EOL;
+                                echo $e->getTraceAsString() . PHP_EOL;
+                                Functions::escreverLogErro($e);
+                            }
+                        } else {
+                            echo "ok." . PHP_EOL;
+                            $qtdPaginas = $totalPag;
+                        }
+                    }
+                    echo "Concluído paginação de componente." . PHP_EOL;
+                    $this->componentes->add($componente);
+                } else {
+                    echo "Arquivo inexistente." . PHP_EOL;
+                }
+            } else if ($tramite) {
+                echo "Componente contendo trâmite: {$c->getId()}.";
+                $componente->setTramite($c);
+                if(isset($_POST['download']) && !empty($_POST['download'])){
+                    $this->componentes->add($componente);
+                    continue;
+                }
+                if ($c instanceof Tramite) {
+                    $tramiteAux = $c;
+                    $tramiteAux->gerarFormularioEletronico();
+                    $arquivoComCaminhoCompleto = $this->getAnexosPath() . $tramiteAux->getNomeFormularioEletronico();
+                    Functions::adicionarPaginacaoECarimbo($arquivoComCaminhoCompleto, IndexController::getClienteConfig(), $qtdPaginas);
+                    $qtdPaginas += Functions::getQntdePaginasPDF($arquivoComCaminhoCompleto);
+                }
+                $this->componentes->add($componente);
+            }
+        }
+        /*Seta uma variável POST para que os processos apensados
+        continuem a partir da última folha do processo anterior
+        */
+        $_POST["qtdPaginas"] = $qtdPaginas;
+        echo "============================ Debug de paginação - Fim ============================</pre>" . PHP_EOL;
         return $this->componentes->toArray();
     }
 
@@ -557,6 +700,11 @@ class Processo extends AppModel
         return true;
     }
 
+    public function contribuintePodeVerAnexos(){
+        $usuario = UsuarioController::getUsuarioLogado();
+        return $usuario->isInteressado() && $this->getUsuarioAbertura()->getId() == $usuario->getId() ;
+    }
+
     public function usuarioTemPermissao(){
         $usuarioLogado = UsuarioController::getUsuarioLogadoDoctrine();
         if (is_null($usuarioLogado)) {
@@ -564,10 +712,7 @@ class Processo extends AppModel
         }
         if($usuarioLogado->getTipo() === TipoUsuario::MASTER){
             return true;
-        }
-        if( $this->sigilo !== SigiloProcesso::SIGILOSO && !$this->temRestricaoPorSetor()){
-            return true;
-        }
+        }        
         $tramite = $this->getTramiteAConsiderarApensoEApensado();
         if(!empty($tramite->getUsuarioDestino()) && $usuarioLogado->getId() == $tramite->getUsuarioDestino()->getId()){
             return true;
@@ -580,6 +725,12 @@ class Processo extends AppModel
                 return $element->getId() === $usuarioLogado->getId();
             }
         )) {
+            return true;
+        }
+        if($this->jaPassouPeloSetorUsuarioLogado()){
+            return true;
+        }
+        if($this->contribuintePodeVerAnexos()){
             return true;
         }
         return false;
@@ -598,7 +749,9 @@ class Processo extends AppModel
         if($this->sigilo != SigiloProcesso::SIGILOSO && AppController::processosSaoSigilosos() === false){
             return true;
         }
-
+        if( $this->sigilo !== SigiloProcesso::SIGILOSO && !$this->temRestricaoPorSetor()){
+            return true;
+        }
         return $this->usuarioTemPermissao();
     }
     
@@ -683,6 +836,22 @@ class Processo extends AppModel
             return new LocalizacaoFisica();
         }
         return $this->localizacaoFisica;
+    }
+
+    public function bloquearTramiteParaUsuario(){
+        $config = AppController::getConfig();
+        
+        if(isset($config['bloquear_tramite_para_usuario']) && !empty($config['bloquear_tramite_para_usuario'])){
+            $excludentes = array(
+                SigiloProcesso::ANEXOS_SIGILOSOS,
+                SigiloProcesso::SIGILOSO
+            );
+            
+            if(!in_array($this->sigilo, $excludentes)){
+                return true;
+            }
+        }
+        return false;
     }
 
     function setLocalizacaoFisica($localizacaoFisica)

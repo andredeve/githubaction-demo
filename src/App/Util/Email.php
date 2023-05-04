@@ -111,7 +111,7 @@ class Email extends \Core\Util\Email
     {
         /* Montando a mensagem a ser enviada no corpo do e-mail. */
         $mensagemHTML = '<p>Sr(a) ' . $usuario->getPessoa()->getNome() . ',</p><br>';
-        if(isset($_POST['transformar'])){
+        if(isset($_POST['transformar']) || isset($_POST['isInterno'])){
             $mensagemHTML .= '<h4 class="text-muted">Senha de acesso</h4><p>Segue abaixo sua senha de acesso, <a href ="' . APP_URL . '" target=\'_blank\'>Clique aqui para acessar.</a></p><p><b>Senha:</b> ' . $senha . '</p>';
         } else {
             $mensagemHTML .= '<h4 class="text-muted">Recuperação de Senha</h4><p>Segue abaixo sua nova senha de acesso, <a href ="' . APP_URL . '" target=\'_blank\'>Clique aqui para acessar.</a></p><p><b>Senha:</b> ' . $senha . '</p>';
@@ -122,7 +122,7 @@ class Email extends \Core\Util\Email
     public function testEnviaEmail($email){
             /* Montando a mensagem a ser enviada no corpo do e-mail. */
         $mensagemHTML = '<p>Sr(a) Teste,</p><br>';
-        $mensagemHTML .= '<h4 class="text-muted">Recuperação de Senha</h4><p>Segue abaixo sua nova senha de acesso, <a href ="' . APP_URL . '" target=\'_blank\'>Clique aqui para acessar.</a></p><p><b>Senha:</b> ' . $senha . '</p>';
+        $mensagemHTML .= '<h4 class="text-muted">Recuperação de Senha</h4><p>Segue abaixo sua nova senha de acesso, <a href ="' . APP_URL . '" target=\'_blank\'>Clique aqui para acessar.</a></p><p><b>Senha:</b>' . $senha . '</p>';
         return $this->enviarEmail("Teste ". " - Sua nova senha de acesso", $mensagemHTML, array($email));
     
     }

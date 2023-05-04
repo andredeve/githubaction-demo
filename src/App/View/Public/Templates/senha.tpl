@@ -10,10 +10,9 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Digite seu endereço de e-mail:</label>
+                        <label>Digite seu login:</label>
                         <div class="input-group">
-                            <div class="input-group-prepend"><div class="input-group-text">@</div></div>
-                            <input class="form-control" placeholder="E-mail" name="email" type="email" required="true">
+                            <input class="form-control" placeholder="Login" name="login" type="text" required="true">
                         </div>
                         <small class="form-text text-muted">
                             Nós lhe enviaremos instruções para redefinir sua senha.

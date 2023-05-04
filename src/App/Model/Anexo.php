@@ -205,8 +205,6 @@ class Anexo extends AppModel
         $this->isCirculacaoInterna = false;
     }
 
-
-
     /**
      * @param $isAutoNumeric
      */
@@ -1175,7 +1173,7 @@ class Anexo extends AppModel
             } else if (!self::ehDocumentoRequerido() &&
                 $this->ehAutor($usuario) &&
                 self::pertenceAoSetor($tramiteAtual, $usuario)) { // Cadastrado em trâmite anterior, documento não obrigatório, usuário autor e pertencente ao setor corrente.
-                return PermissaoStatus::REQUER_MOTIVO;
+                return PermissaoStatus::NEGADO;
             } else {
                 return PermissaoStatus::NEGADO;
             }
@@ -1460,8 +1458,25 @@ class Anexo extends AppModel
         HistoricoAnexo::registrar(TipoLog::ACTION_UPDATE, $motivo, null, $antigo, $this, UsuarioController::getUsuarioLogadoDoctrine());
     }
 
+    public function ehPdf(): bool {
+        $ext = pathinfo($this->getArquivo(false, false, true), PATHINFO_EXTENSION);
+        return strtolower($ext) === "pdf";
+    }
+
     public function jsonSerialize(): array
     {
+        $qtd_assinaturas = 0;
+        $qtd_componentes = 0;
+        if ($this->assinatura instanceof Collection) {
+            $qtd_assinaturas = $this->assinatura->count();
+        } else if (is_array($this->assinatura)) {
+            $qtd_assinaturas = count($this->assinatura);
+        }
+        if ($this->componente instanceof Collection) {
+            $qtd_componentes = $this->componente->count();
+        } else if (is_array($this->componente)) {
+            $qtd_componentes = count($this->componente);
+        }
         return [
             "id" => $this->id,
             "is_digitalizado" => $this->isDigitalizado,
@@ -1486,10 +1501,10 @@ class Anexo extends AppModel
             "imagens" => count($this->imagens) > 0 ? array_map(function ($item) {
                 return $item->getId();
             }, $this->imagens) : "",
-            "assinaturas" => count($this->assinatura) > 0 ? array_map(function ($item){
+            "assinaturas" => $qtd_assinaturas > 0 ? array_map(function ($item){
                 return $item->getId();
             }, $this->assinatura) : "",
-            "componentes" => count($this->componente) > 0 ? array_map(function ($item) {
+            "componentes" => $qtd_componentes > 0 ? array_map(function ($item) {
                 return $item->getId();
             }, $this->componente) : "",
             "codigo_importacao" => $this->codigoImportacao,

@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Model\Setor;
 use App\Model\Assunto;
 use Core\Controller\AppController;
+use Doctrine\Common\Collections\ArrayCollection;
 use Core\Util\Report;
 
 /**
@@ -62,18 +64,58 @@ class AssuntoController extends AppController
 
     public function inserir()
     {
-        $this->setAssunto();
-        parent::inserir();
+        $assunto = new Assunto();
+        $this->setAssunto($assunto);
+        $assunto_id = parent::inserir();
+        if($assunto_id){
+            $assunto->postPersistAndUpdateSetor((new Assunto())->buscar($assunto_id));
+        }
     }
 
     function atualizar()
     {
-        $this->setAssunto();
-        parent::atualizar();
+        $isAjax = isset($_REQUEST['ajax']) ? true : false;
+        $assunto_id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
+        $assunto = (new Assunto())->buscar($assunto_id);
+        $this->setAssunto($assunto);
+        $this->getValues($assunto);
+        $assunto->atualizar();
+        $assunto->postPersistAndUpdateSetor($assunto);
+        $_REQUEST['objeto'] = $assunto;
+        if (!$isAjax) {
+            return $this->route($this->class_path);
+        }
     }
 
-    private function setAssunto()
+    private function setAssunto(Assunto &$assunto)
     {
         $_POST['assuntoPai'] = !empty($_POST['assunto_pai_id']) ? (new Assunto())->buscar($_POST['assunto_pai_id']) : null;
+        $this->setSetores($assunto);
+    }
+
+    private function setSetores(Assunto $assunto)
+    {
+        $antigos_setores = $assunto->getSetoresIds();
+        if (!empty($_POST['setores_id'])) {
+            $setores = new ArrayCollection();
+            $novos_setores = $_POST['setores_id'];
+            foreach ($novos_setores as $setor_id) {
+                $setor = (new Setor())->buscar($setor_id);
+                $setores->add($setor);
+            }
+            //Remove vínculo de setores desmarcados
+            foreach ($antigos_setores as $setor_id) {
+                if (!in_array($setor_id, $novos_setores)) {
+                    $setor = (new Setor())->buscar($setor_id);
+                    $setor->removeAssunto($assunto);
+                }
+            }
+            $_POST['setores'] = $setores;
+        } else if (empty($_POST['setores_id'])) {
+            foreach ($antigos_setores as $setor_id) {
+                $setor = (new Setor())->buscar($setor_id);
+                $setor->removeAssunto($assunto);
+            }
+        }
     }
 }

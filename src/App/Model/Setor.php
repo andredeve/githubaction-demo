@@ -77,6 +77,13 @@ class Setor extends AppModel implements EntityInterface
     private $usuarios;
 
     /**
+     * @ManyToMany(targetEntity="Assunto", inversedBy="setores")
+     * @JoinTable(name="setores_assunto")
+     * @var Collection $assuntos
+     */
+    private $assuntos;
+
+    /**
      * @Column(type="date",name="data_cadastro")
      */
     private $dataCadastro;
@@ -214,6 +221,16 @@ class Setor extends AppModel implements EntityInterface
     {
         $this->usuarios = $usuarios;
     }
+
+    function getAssuntos(): ?Collection
+    {
+        return $this->assuntos;
+    }
+
+    function setAssuntos($assuntos)
+    {
+        $this->assuntos = $assuntos;
+    }
     
     function getOrgao() {
         if($this->getSetorPai() && $this->getSetorPai()->getId()){
@@ -246,6 +263,18 @@ class Setor extends AppModel implements EntityInterface
     function removeUsuario(Usuario $usuario)
     {
         $this->usuarios->removeElement($usuario);
+    }
+
+    function adicionaAssunto(Assunto $assunto)
+    {
+        if (!$this->assuntos->contains($assunto)) {
+            $this->assuntos->add($assunto);
+        }
+    }
+
+    function removeAssunto(Assunto $assunto)
+    {
+        $this->assuntos->removeElement($assunto);
     }
 
     /**

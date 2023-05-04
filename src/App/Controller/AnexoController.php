@@ -8,13 +8,18 @@ use App\Enum\TipoLog;
 use App\Enum\TipoUsuario;
 use App\Log\HistoricoAnexo;
 use App\Model\Anexo;
+use App\Model\Substituicao;
 use App\Model\Classificacao;
 use App\Model\Componente;
 use App\Model\Converter;
+use App\Model\Dao\AnexoDao;
 use App\Model\Log;
 use App\Model\Dao\ProcessoDao;
 use App\Model\Processo;
 use App\Model\TipoAnexo;
+use App\Model\Tramite;
+use App\Util\AnexoModelo;
+use App\Util\Html2Pdf;
 use Core\Controller\AppController;
 use Core\Enum\TipoMensagem;
 use Core\Exception\AppException;
@@ -97,12 +102,17 @@ class AnexoController extends AppController
                 $this->retornoAnexoRemovido();
                 exit;
             }
+
             $url = $anexo->getArquivoUrl();
+
+
             if (is_null($url)) {
                 $this->retornoAnexoRemovido();
             } else {
                 header('Location: ' . $url);
             }
+
+            
         } else {
             $attachPath = ATTACH_TEMP . $param;
             header("Content-Type: application/pdf");
@@ -315,7 +325,8 @@ class AnexoController extends AppController
     {
         $anexo->setTipo((new TipoAnexo())->buscar($_POST['tipo_documento_id']));
         $numeroAnexo = $anexo->getProcesso()->getNumeroAnexo() + 1;
-        $novoNumero = $anexo->getProcesso()->getNumero() . date("y") . $numeroAnexo;
+        //O número gerado para ser atribuído ao anexo agora considera o exercício do processo, ao invés do ano corrente
+        $novoNumero = $anexo->getProcesso()->getNumero() . substr($anexo->getProcesso()->getExercicio(),2) . $numeroAnexo;
         if (!empty($_POST['classificacao_documento_id'])) {
             $anexo->setClassificacao((new Classificacao())->buscar($_POST['classificacao_documento_id']));
         }
@@ -331,19 +342,23 @@ class AnexoController extends AppController
         $anexo->setDescricao($_POST['descricao_doc']);
         $anexo->setExercicio($anexo->getData()->format('Y'));
         if(!empty($_POST['auto_numero_doc']) && $_POST['auto_numero_doc'] == 1){
-            if(empty($anexo->buscarPorCampos(array('numero' => $novoNumero)))){
+            if (empty($anexo->getProcesso()->getNumero())){
                 $anexo->setIsAutoNumeric(true);
             } else {
+                if(empty($anexo->buscarPorCampos(array('numero' => $novoNumero)))){
+                    $anexo->setIsAutoNumeric(true);
+                } else {
 
-                while(!empty($anexo->buscarPorCampos(array('numero' => $novoNumero)))){
-                
-                    $numeroAnexo++;
-                    $novoNumero++;
+                    while(!empty($anexo->buscarPorCampos(array('numero' => $novoNumero)))){
                     
-            }
+                        $numeroAnexo++;
+                        $novoNumero++;
+                        
+                }
 
-                $anexo->getProcesso()->setNumeroAnexo($numeroAnexo);
-                $anexo->setNumero($novoNumero);
+                    $anexo->getProcesso()->setNumeroAnexo($numeroAnexo);
+                    $anexo->setNumero($novoNumero);
+                }
             }
         }elseif(isset($_POST['numero_doc'])){
             
@@ -355,7 +370,9 @@ class AnexoController extends AppController
 
         }
         $anexo->setIsCirculacaoInterna(!empty($_POST['is_circulacao_interna']) && $_POST['is_circulacao_interna'] == 1);
-        $anexo->setValor(Functions::realToDecimal($_POST['valor_doc']));
+        if (!empty($_POST['valor_doc'])) {
+            $anexo->setValor(Functions::realToDecimal($_POST['valor_doc']));
+        }
         $anexo->setQtdePaginas(isset($_POST['paginas_doc']) && !empty($_POST['paginas_doc']) ? $_POST['paginas_doc'] : null);
         $anexo->setUsuario(UsuarioController::getUsuarioLogadoDoctrine());
         return $anexo;
@@ -397,6 +414,7 @@ class AnexoController extends AppController
         $arquivo_old = false;
         if (!is_null($filePath)) {
             $arquivo_old = $anexo->getArquivo();
+            
             if (rename($filePath, $anexo->getPath() . basename($filePath))) {
                 $filePath = $anexo->getPath() . basename($filePath);
             } else {
@@ -404,19 +422,11 @@ class AnexoController extends AppController
                 die;
             }
             $anexo->setArquivo(basename($filePath));
-            try {
-                $anexo->setTextoOCR((new Parser())->lxParseFile($filePath));
-            } catch (Exception $e) {
-                Functions::escreverLogErro($e);
-            }
-            $anexo->setIsDigitalizado(false);
-            $anexo->setIsOCRIniciado(true);
-            $anexo->setIsOCRFinalizado(true);
+
         } else if (isset($_FILES['arquivo_processo']) && !empty($_FILES['arquivo_processo']['name'])) {
             $arquivo_old = $anexo->getArquivo();
-            $nome_arquivo = (new Upload('arquivo_processo', $anexo->getPath(), array('pdf', 'png', 'gif', 'doc', 'docx', 'jpg', 'jpeg')))->upload();
+            $nome_arquivo = (new Upload('arquivo_processo', $anexo->getPath(), array('pdf', 'png', 'gif', 'doc', 'docx', 'jpg', 'jpeg', 'xsl', 'xslx', 'mp3', 'mp4')))->upload();
             $dir_arquivo = $anexo->getPath();
-
             $anexo->setArquivo($nome_arquivo);
             try {
                 $file = $dir_arquivo . $nome_arquivo;
@@ -429,13 +439,15 @@ class AnexoController extends AppController
                     $anexo->setIsOCRFinalizado(true);
                 } else if (Functions::isImage($file)) {
                     $anexo->setArquivo(basename(Functions::imageToPdf($file)));
+                } else {
+                    $anexo->setArquivo(basename($file));
                 }
             } catch (TechnicalException $e) {
                 Functions::escreverLogErro($e);
             }
-            if (is_file($dir_arquivo . $arquivo_old) && !isset($_POST['mesclar_arquivos'])) {
-                unlink($dir_arquivo . $arquivo_old);
-            }
+            // if (is_file($dir_arquivo . $arquivo_old) && !isset($_POST['mesclar_arquivos'])) {
+            //     unlink($dir_arquivo . $arquivo_old);
+            // }
         } else if (!empty($_POST['arquivo_processo'])) {
             $nome_arquivo = $_POST['arquivo_processo'];
             $dir_arquivo = Processo::getTempPath();
@@ -471,9 +483,9 @@ class AnexoController extends AppController
         }
     }
 
-    function inserir()
+    function inserir($type = null)
     {
-        if (func_get_arg(0) === 'multiplos') {
+        if ($type === 'multiplos') {
             $this->salvarMultiplosAnexos();
             return;
         }
@@ -487,12 +499,17 @@ class AnexoController extends AppController
                 throw new BusinessException(" Permitido manipular anexos quando tramitado para o setor responsável.");
             }
 	        $anexo = isset($_SESSION['anexo']) ? unserialize($_SESSION['anexo']) : new Anexo();
-	        $anexo->setProcesso($processo);
+            $anexo->setProcesso($processo);
 	        $anexo->setDataCadastro(new DateTime());
 	        // Se inserção for a partir de um modelo de documento:
 	        if ($_POST['tipo_upload'] == 'model') {
-		        $filePath = (new DocumentoController())->gerarTemporario();
-		        $this->setAnexo($anexo, $filePath);
+                $nomeArquivo = date("Ymd") . uniqid();
+                $mpdf = new Html2Pdf($nomeArquivo);
+                $mpdf->WriteHTML($_POST['texto']);
+                $filePath = FILE_PATH . 'documentos/temp/' . $nomeArquivo . "." . "pdf";
+                $mpdf->Output($filePath, 'F');
+                $anexo->setTextoOCR($_POST['texto']);
+                $this->setAnexo($anexo, $filePath);
 	        } else {
 		        $this->setAnexo($anexo);
 	        }
@@ -500,23 +517,21 @@ class AnexoController extends AppController
 	        if (empty($_POST['processo_id'])) {
 		        $_SESSION['processo'] = serialize($processo);
 	        } else {
-//		        $processo->atualizar();
                 $anexo->inserir();
-//		        $anexoConverter = $processo->getAnexos()->last();
-		        $anexoConverter = $anexo;
-		        if (isset($_FILES['arquivo_processo']) && !empty($_FILES['arquivo_processo']['name'])) {
-			        $converter = new Converter();
-			        $converter->setAnexo($anexoConverter);
-			        $converter->inserir();
-                } else if ($anexoConverter->getArquivo()) {
-			        ComponenteController::inserirComponente($processo, $anexoConverter);
-		        }
+                if ($anexo->ehPdf() && isset($_FILES['arquivo_processo']) && !empty($_FILES['arquivo_processo']['name'])) {
+                    $anexoConverter = (new AnexoDao())->buscar($anexo->getId());
+                    $converter = new Converter();
+                    $converter->setAnexo($anexoConverter);
+                    $converter->inserir();
+                }
             }
 	        $output = ['anexo_id' => $anexo->getId(), 'nome_arquivo' => null, 'msg' => "Anexo adicionado com sucesso!", 'tipo' => TipoMensagem::SUCCESS];
         } catch (UniqueConstraintViolationException $ex) {
+            Functions::escreverLogErro($ex);
             $output = ['nome_arquivo' => null, 'msg' => "Registro já cadastrado: O tipo de anexo e seu número devem ser únicos no processo.", 'tipo' => TipoMensagem::ERROR];
         } catch (AppException $ex) {
             $output = ['nome_arquivo' => null, 'msg' => $ex->getMessage(), 'tipo' => TipoMensagem::ERROR];
+            Functions::escreverLogErro($ex);
         } catch (DBALException $ex) {
             $output = ['nome_arquivo' => null, 'msg' => "Ocorreu um erro ao registrar o arquivo.", 'tipo' => TipoMensagem::ERROR];
             parent::registerLogError($ex);
@@ -526,7 +541,9 @@ class AnexoController extends AppController
         }
         echo json_encode($output);
     }
-
+    /**********************************/
+    /***Última Alteração: 03/02/2023***/
+    /*************André****************/
     function atualizar()
     {
         try {
@@ -543,10 +560,17 @@ class AnexoController extends AppController
                 $anexo->setIsAutoNumeric(true);
             }
             if ($_POST['tipo_upload'] == 'model') {
-                $filePath = (new DocumentoController())->gerarTemporario();
+                $nomeArquivo = $anexo->getArquivo();
+                $mpdf = new Html2Pdf($nomeArquivo);
+                $mpdf->WriteHTML($_POST['texto']);
+                $filePath = FILE_PATH . 'documentos/temp/' . $nomeArquivo;
+                $mpdf->Output($filePath, 'F');
                 $this->setAnexo($anexo, $filePath);
-                $anexo->setPaginacao(null);
-                $anexo->atualizar(true, true, $_POST['motivo'] ?? null);
+                if (!empty($anexo->getId())){
+                    $anexo->setTextoOCR($_POST['texto']);
+                    $anexo->setPaginacao(null);
+                    $anexo->atualizar(true, true, $_POST['motivo'] ?? null);
+                }
             } else {
                 $this->setAnexo($anexo);
                 if ($anexoOld->getPath(true, false) != $anexo->getPath(true, false)) {
@@ -556,6 +580,12 @@ class AnexoController extends AppController
                         rename($nameOld, $nameNew);
                     }
                 }
+                
+                if (is_file($anexoOld->getArquivo(true)) && $anexoOld->getArquivo(true) != $anexo->getArquivo(true)){
+
+                    (new SubstituicaoController())->montarSubstituicao($anexo, $anexoOld);
+
+                }
                 $anexo->setPaginacao(null);
                 if (!is_null($anexo->getId())) {
                     $anexo->atualizar(true, true, $_POST['motivo'] ?? null);
@@ -564,6 +594,7 @@ class AnexoController extends AppController
                     $_SESSION['processo'] = serialize($processo);
                 }
             }
+
             self::setMessage(TipoMensagem::SUCCESS, "Anexo atualizado com sucesso!", null, true);
         } catch (AppException $ex) {
             self::setMessage(TipoMensagem::ERROR, $ex->getMessage(), null, true);
@@ -709,6 +740,9 @@ class AnexoController extends AppController
      */
     public static function possuiPermissao($processo)
     {
+        /**
+         * @var Tramite $tramiteAtual
+         */
         $usuario = UsuarioController::getUsuarioLogadoDoctrine();
         
         $tramites = $processo->getTramiteAtualSemApenso();
@@ -728,6 +762,9 @@ class AnexoController extends AppController
         $setorAtual = null;
         if (isset($tramiteAtual)) {
             $setorAtual = $tramiteAtual->getSetorAtual();
+            if ($tramiteAtual->getResponsavel()->getId() === $usuario->getId()) {
+                return true;
+            }
         }
         $tiposUsuario = array(TipoUsuario::ADMINISTRADOR, TipoUsuario::MASTER);
         if (in_array($usuario->getTipo(), $tiposUsuario) || is_null($setorAtual) || is_null($setorAtual->getNome())) {
@@ -755,7 +792,7 @@ class AnexoController extends AppController
                         return $item->getId();
                     }, $setores_pais);
                     if (in_array($setorAtual->getId(), $setores_pais_ids)) {
-                        return true;
+                        // return true;
                     }
                 }
             }

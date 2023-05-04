@@ -7,7 +7,11 @@
             <select setor_id="{$setor->getId()}" id="select_setor_destino" name="setor_destino_id[{$i}]"
                     class="select2Tree" required="true">
                 <option class="10" value="">Selecione o Setor</option>
-                {include file="../../Setor/Templates/select.tpl" setor_selecionado=array($setor->getId())}
+                {if isset($setores) and count($setores) > 0}
+                    {include file="../../Setor/Templates/select.tpl" setores=$setores setor_selecionado=array($setor->getId())}
+                {else}
+                    {include file="../../Setor/Templates/select.tpl" setor_selecionado=array($setor->getId())}
+                {/if}
             </select>
             <div class="custom-control custom-checkbox mt-2">
                 <input type="checkbox" class="custom-control-input" name="devolverSetorOrigem"
@@ -50,18 +54,22 @@
             {/foreach}
         </select>
     </td>
-    <td style="width: 20%">
-        <select name="usuario_destino_id[{$i}]" class="form-control form-control-sm usuario_destino_processo"
-                {if \App\Enum\SigiloProcesso::RESTRICAO_PUBLICA !=  $processo->getSigilo() && \App\Enum\SigiloProcesso::SEM_RESTRICAO !=  $processo->getSigilo() }  required="true"  {/if} >
-            <option value="">Todos </option>
-            {if $setor neq null}
-                {foreach $setor->getUsuarios() as $usuario}
-                    <option value="{$usuario->getId()}">{$usuario->getPessoa()->getNome()}</option>
-                {/foreach}
+    <td style="width: 20%">            
+        {if $processo->bloquearTramiteParaUsuario()}
+            <div class="col-12 text-center" ><strong> BLOQUEADO </strong></div>
+        {else}    
+            <select name="usuario_destino_id[{$i}]" class="form-control form-control-sm usuario_destino_processo"
+                    {if \App\Enum\SigiloProcesso::RESTRICAO_PUBLICA !=  $processo->getSigilo() && \App\Enum\SigiloProcesso::SEM_RESTRICAO !=  $processo->getSigilo() }  required="true"  {/if} >
+                <option value="">Todos </option>
+                {if $setor neq null}
+                    {foreach $setor->getUsuarios() as $usuario}
+                        <option value="{$usuario->getId()}">{$usuario->getPessoa()->getNome()}</option>
+                    {/foreach}
+                {/if}
+            </select>
+            {if \App\Enum\SigiloProcesso::RESTRICAO_PUBLICA !=  $processo->getSigilo() && \App\Enum\SigiloProcesso::SEM_RESTRICAO !=  $processo->getSigilo() }
+                <span class="text-danger"> O campo é obrigatório por que esse processo é {strtolower(\App\Enum\SigiloProcesso::getOptions($processo->getSigilo()))}.   </span>
             {/if}
-        </select>
-        {if \App\Enum\SigiloProcesso::RESTRICAO_PUBLICA !=  $processo->getSigilo() && \App\Enum\SigiloProcesso::SEM_RESTRICAO !=  $processo->getSigilo() }
-            <span class="text-danger"> O campo é obrigatório por que esse processo é {strtolower(\App\Enum\SigiloProcesso::getOptions($processo->getSigilo()))}.   </span>
         {/if}
     </td>
     <td style="width: 18%">

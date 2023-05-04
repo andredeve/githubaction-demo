@@ -6,6 +6,7 @@
                 {if $setor_sel neq null and  in_array($setor->getId(),$setor_sel)}selected{/if}
                 value="{$setor->getId()}" {if $setor_pai_id neq null}data-pup="{$setor_pai_id}"{/if}
                 class="l{$level} {if $qtde_filhos gt 0}non-leaf{/if}"
+                arquivar={$setor->getArquivar()}
                 {if !$setor->getDisponivelTramite() && !isset($isCadastroSetores) } disabled="disabled" data-toggle="tooltip" title="Setor indisponível para trâmite" {/if}>{$setor->getNome()}
         </option>
         {if $qtde_filhos gt 0}

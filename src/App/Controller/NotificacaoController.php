@@ -283,26 +283,29 @@ class NotificacaoController extends AppController
                 parent::inserir();
             }
         } else {
-            $this->setNotificacao();
+            $destinatario = $_POST['destinatario_id'][0];
+            $this->setNotificacao($destinatario);
             return parent::inserir();
         }
     }
 
-    private function setNotificacao()
+    private function setNotificacao($destinatario)
     {
         if (isset($_POST['processo_id']) && !empty($_POST['processo_id'])) {
             $processo =  new Processo();
             $processo = $processo->buscar(filter_input(INPUT_POST, 'processo_id', FILTER_SANITIZE_NUMBER_INT));
             $_POST['tramite'] = $processo->getTramiteAtualSemApenso();
         }
-        $_POST['usuarioDestino'] = (new Usuario())->buscar(filter_input(INPUT_POST, 'destinatario_id', FILTER_SANITIZE_NUMBER_INT));
+        $_POST['usuarioDestino'] = (new Usuario())->buscar($destinatario);
     }
 
     private function setNotificacaoArray($destinatario)
     {
-        $processo =  new Processo();
-        $processo = $processo->buscar(filter_input(INPUT_POST, 'processo_id', FILTER_SANITIZE_NUMBER_INT));
-        $_POST['tramite'] = $processo->getTramiteAtualSemApenso();
+        if (isset($_POST['processo_id']) && !empty($_POST['processo_id'])) {
+            $processo =  new Processo();
+            $processo = $processo->buscar(filter_input(INPUT_POST, 'processo_id', FILTER_SANITIZE_NUMBER_INT));
+            $_POST['tramite'] = $processo->getTramiteAtualSemApenso();
+        }
         $_POST['usuarioDestino'] = (new Usuario())->buscar($destinatario);
     }
 

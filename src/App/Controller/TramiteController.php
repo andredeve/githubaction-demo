@@ -231,46 +231,134 @@ class TramiteController extends AppController
             if (!is_null($setor_fase)) {
                 foreach ($setor_fase->getCampos() as $campo) {
                     if (isset($_POST['campo_' . $campo->getId()]) || isset($_FILES['campo_' . $campo->getId()])) {
-                        if ($campo->getTipo() == TipoCampo::ARQUIVO) {
-                            $anexo = new Anexo();
-                            $anexo->setProcesso($processo);
-                            $anexo->setDataCadastro(new DateTime());
-                            $anexo->setIsCirculacaoInterna($campo->getCirculacaoInterna());
-                            if (isset($_POST['data_campo_' . $campo->getId()])) {
-                                $data = new DateTime(Functions::converteDataParaMysql($_POST['data_campo_' . $campo->getId()]));
-                            } else {
-                                $data = new DateTime();
-                            }
-                            $anexo->setData($data);
-                            if (!empty($_POST['documento_auto_numeric_' . $campo->getId()]) && $_POST['documento_auto_numeric_' . $campo->getId()] == 1) {
-                                $anexo->setIsAutoNumeric(true);
-                            } elseif (isset($_POST['numero_campo_' . $campo->getId()])) {
-                                $anexo->setNumero($_POST['numero_campo_' . $campo->getId()]);
-                            }
-                            if (((!empty($_POST['numero_campo_' . $campo->getId()])) && !empty($_POST['ano_campo_' . $campo->getId()])) || (isset($_POST['documento_auto_numeric_' . $campo->getId()]) && $_POST['documento_auto_numeric_' . $campo->getId()])) {
-                                $anexo->setExercicio($_POST['ano_campo_' . $campo->getId()]);
-                                if ($campo->getAssinaturaObrigatoria() && isset($_FILES['campo_' . $campo->getId()]) && !empty($_FILES['campo_' . $campo->getId()]['name'])) {
-                                    $assinatura = new Assinatura();
-                                    $assinatura->setDataCadastro(new DateTime);
-                                    $assinatura->setExercicio($_POST['ano_campo_' . $campo->getId()]);
-                                    $assinatura->setUsuario($usuario_logado);
-                                    $assinatura->setGrupo(implode(",", $_POST["grupo_assinatura_campo_{$campo->getId()}"]));
-                                    $assinatura->setSignatarios(implode(",", $_POST["signatario_assinatura_campo_{$campo->getId()}"]));
-                                    $assinatura->setTipoDocumento($_POST["tipo_documento_campo_{$campo->getId()}"]);
-                                    $assinatura->setEmpresa($_POST["empresa_campo_{$campo->getId()}"]);
-                                    $dataLimitiAssinatura = Functions::converteDataParaMysql($_POST["data_assinatura_campo_{$campo->getId()}"]);
-                                    $assinatura->setDataLimiteAssinatura((new DateTime($dataLimitiAssinatura)));
-                                    $anexo->removerTodos();
-                                    $anexo->adicionaAssinatura($assinatura);
+                        if ($campo->getTipo() == TipoCampo::ARQUIVO && isset($_FILES['campo_' . $campo->getId()]) && !empty($_FILES['campo_' . $campo->getId()]['name'])) {
+                            $limite = count($_FILES['campo_' . $campo->getId()]["name"]);
+                            $contador = 0;
+                            do{
+
+                                $anexoAux = new Anexo();
+                                $anexoAux->setDataCadastro(new DateTime());
+                                $anexoAux->setTipo($campo->getTipoTemplate());
+                                $anexoAux->setData(new DateTime());
+                                $anexoAux->setDescricao($campo->getNome());
+                                $anexoAux->setProcesso($processo);
+                                $anexoAux->setIsDigitalizado(false);
+
+                                $_FILES['arquivo'] = array(
+                                    "name" => $_FILES['campo_' . $campo->getId()]["name"][$contador],
+                                    "type" => $_FILES['campo_' . $campo->getId()]["type"][$contador],
+                                    "tmp_name" => $_FILES['campo_' . $campo->getId()]["tmp_name"][$contador],
+                                    "error" => $_FILES['campo_' . $campo->getId()]["error"][$contador],
+                                    "size"=>$_FILES['campo_' . $campo->getId()]["size"][$contador]);
+    
+                                
+                                $resposta_campo = (new Upload('arquivo', $anexoAux->getPath(), array('pdf')))->upload();
+                                if (!empty($resposta_campo) && is_array($resposta_campo)) {
+                                    foreach ($resposta_campo as $arquivo) {
+                                        $anexo = new Anexo();
+                                        $anexo->setExercicio($_POST['ano_campo_' . $campo->getId()][$contador]);
+                                        $anexo->setDataCadastro(new DateTime());
+                                        $anexo->setIsCirculacaoInterna($campo->getCirculacaoInterna());
+                                        $anexo->setTipo($campo->getTipoTemplate());
+                                        if (isset($_POST['data_campo_' . $campo->getId()][$contador])) {
+                                            $data = new DateTime(Functions::converteDataParaMysql($_POST['data_campo_' . $campo->getId()][$contador]));
+                                        } else {
+                                            $data = new DateTime();
+                                        }
+                                        $anexo->setData($data);
+                                        $anexo->setDescricao($campo->getNome());
+                                        $anexo->setProcesso($processo);
+                                        $anexo->setArquivo($arquivo);
+                                        $anexo->setIsDigitalizado(false);
+                                        $anexo->setUsuario($usuario_logado);
+                                        if ($campo->getAssinaturaObrigatoria()) {
+                                            $anexo->setIsAutoNumeric(true);
+                                            $assinatura = new Assinatura();
+                                            $assinatura->setDataCadastro(new DateTime);
+                                            $assinatura->setExercicio($_POST['ano_campo_' . $campo->getId()][$contador]);
+                                            $assinatura->setUsuario($usuario_logado);
+                                            $assinatura->setGrupo(implode(",", $_POST["grupo_assinatura_campo_{$campo->getId()}"][$contador]));
+                                            $assinatura->setSignatarios(implode(",", $_POST["signatario_assinatura_campo_{$campo->getId()}"][$contador]));
+                                            $assinatura->setTipoDocumento($_POST["tipo_documento_campo_{$campo->getId()}"][$contador]);
+                                            $assinatura->setEmpresa($_POST["empresa_campo_{$campo->getId()}"][$contador]);
+                                            $dataLimitiAssinatura = Functions::converteDataParaMysql($_POST["data_assinatura_campo_{$campo->getId()}"][$contador]);
+                                            $assinatura->setDataLimiteAssinatura((new DateTime($dataLimitiAssinatura)));
+                                            $assinatura->setAnexo($anexo);
+                                            $anexo->removerTodos();
+                                            $anexo->adicionaAssinatura($assinatura);
+                                        }
+                                        $processo->adicionaAnexo($anexo);
+                                    }
+                                    $resposta_campo = implode(",", $resposta_campo);
+                                } else if (!empty($resposta_campo) && !is_array($resposta_campo)){
+                                        $anexo = new Anexo();
+                                        $anexo->setExercicio($_POST['ano_campo_' . $campo->getId()][$contador]);
+                                        $anexo->setDataCadastro(new DateTime());
+                                        $anexo->setIsCirculacaoInterna($campo->getCirculacaoInterna());
+                                        $anexo->setTipo($campo->getTipoTemplate());
+                                        if (isset($_POST['data_campo_' . $campo->getId()][$contador])) {
+                                            $data = new DateTime(Functions::converteDataParaMysql($_POST['data_campo_' . $campo->getId()][$contador]));
+                                        } else {
+                                            $data = new DateTime();
+                                        }
+                                        $anexo->setData($data);
+                                        $anexo->setDescricao($campo->getNome());
+                                        $anexo->setProcesso($processo);
+                                        $anexo->setArquivo($resposta_campo);
+                                        $anexo->setIsDigitalizado(false);
+                                        $anexo->setUsuario($usuario_logado);
+                                        if (!empty($_POST['documento_auto_numeric_' . $campo->getId()][$contador]) && $_POST['documento_auto_numeric_' . $campo->getId()][$contador] == 1) {
+                                            $anexo->setIsAutoNumeric(true);
+                                        } elseif (isset($_POST['numero_campo_' . $campo->getId()][$contador])) {
+                                            $anexo->setNumero($_POST['numero_campo_' . $campo->getId()][$contador]);
+                                        }
+                                        $anexo->setExercicio($_POST['ano_campo_' . $campo->getId()][$contador]);
+                                        if ($campo->getAssinaturaObrigatoria()) {
+                                            $assinatura = new Assinatura();
+                                            $assinatura->setDataCadastro(new DateTime);
+                                            $assinatura->setExercicio($_POST['ano_campo_' . $campo->getId()][$contador]);
+                                            $assinatura->setUsuario($usuario_logado);
+                                            $assinatura->setGrupo(implode(",", $_POST["grupo_assinatura_campo_{$campo->getId()}"][$contador]));
+                                            $assinatura->setSignatarios(implode(",", $_POST["signatario_assinatura_campo_{$campo->getId()}"][$contador]));
+                                            $assinatura->setTipoDocumento($_POST["tipo_documento_campo_{$campo->getId()}"][$contador]);
+                                            $assinatura->setEmpresa($_POST["empresa_campo_{$campo->getId()}"][$contador]);
+                                            $dataLimitiAssinatura = Functions::converteDataParaMysql($_POST["data_assinatura_campo_{$campo->getId()}"][$contador]);
+                                            $assinatura->setDataLimiteAssinatura((new DateTime($dataLimitiAssinatura)));
+                                            $anexo->removerTodos();
+                                            $anexo->adicionaAssinatura($assinatura);
+                                        }
+                                        $processo->adicionaAnexo($anexo);
                                 }
-                            }
-                            $anexo->setTipo($campo->getTipoTemplate());
-                            $anexo->setDescricao($campo->getNome());
-                            $anexo->setIsDigitalizado(false);
-                            $anexo->setUsuario($usuario_logado);
-                            $resposta_campo = isset($_FILES['campo_' . $campo->getId()]) && !empty($_FILES['campo_' . $campo->getId()]['name']) ? (new Upload('campo_' . $campo->getId(), $anexo->getPath(), array('pdf')))->upload() : null;
-                            $anexo->setArquivo($resposta_campo);
-                            $processo->adicionaAnexo($anexo);
+
+                                // if (((!empty($_POST['numero_campo_' . $campo->getId()][$contador])) && !empty($_POST['ano_campo_' . $campo->getId()][$contador])) || (isset($_POST['documento_auto_numeric_' . $campo->getId()][$contador]) && $_POST['documento_auto_numeric_' . $campo->getId()][$contador])) {
+                                //     $anexo->setExercicio($_POST['ano_campo_' . $campo->getId()][$contador]);
+                                //     if ($campo->getAssinaturaObrigatoria() && isset($_FILES['campo_' . $campo->getId()]) && !empty($_FILES['campo_' . $campo->getId()]['name'][$contador])) {
+                                //         $assinatura = new Assinatura();
+                                //         $assinatura->setDataCadastro(new DateTime);
+                                //         $assinatura->setExercicio($_POST['ano_campo_' . $campo->getId()][$contador]);
+                                //         $assinatura->setUsuario($usuario_logado);
+                                //         $assinatura->setGrupo(implode(",", $_POST["grupo_assinatura_campo_{$campo->getId()}"][$contador]));
+                                //         $assinatura->setSignatarios(implode(",", $_POST["signatario_assinatura_campo_{$campo->getId()}"][$contador]));
+                                //         $assinatura->setTipoDocumento($_POST["tipo_documento_campo_{$campo->getId()}"][$contador]);
+                                //         $assinatura->setEmpresa($_POST["empresa_campo_{$campo->getId()}"][$contador]);
+                                //         $dataLimitiAssinatura = Functions::converteDataParaMysql($_POST["data_assinatura_campo_{$campo->getId()}"][$contador]);
+                                //         $assinatura->setDataLimiteAssinatura((new DateTime($dataLimitiAssinatura)));
+                                //         $anexo->removerTodos();
+                                //         $anexo->adicionaAssinatura($assinatura);
+                                //     }
+                                // }
+
+                                // $anexo->setTipo($campo->getTipoTemplate());
+                                // $anexo->setDescricao($campo->getNome());
+                                // $anexo->setIsDigitalizado(false);
+                                // $anexo->setUsuario($usuario_logado);
+
+                                // $anexo->setArquivo($resposta_campo);
+                                // $processo->adicionaAnexo($anexo);
+                                
+                                $contador++;
+
+                            } while($contador < $limite);
                         } else if ($campo->getTipo() == TipoCampo::PROCESSO) {
                             $processoLincado = new Processo();
                             $processoLincado = $processoLincado->buscar($_POST['campo_' . $campo->getId()]);
@@ -344,24 +432,38 @@ class TramiteController extends AppController
             $fase = $assunto->getFluxograma()->getFases($numero_fase);
             $setores_fase = $fase->getSetoresFase($setor_atual->getId());
             if (!empty($setores_fase)) {
-                foreach ($setores_fase as $setor_fase) {
-                    if ($setor_fase != null) {
-                        foreach ($setor_fase->getPerguntas() as $pergunta) {
-                            if (isset($_POST['resposta_pergunta' . $pergunta->getId()])) {
-                                $resposta = new RespostaPergunta();
-                                $resposta->setPergunta($pergunta);
-                                $resposta->setPerguntaTxt($pergunta->getDescricao());
-                                $resposta->setResposta($_POST['resposta_' . $pergunta->getId()]);
-                                $resposta->setObservacoes($_POST['observacoes_' . $pergunta->getId()]);
-                                $resposta->setData(new DateTime());
-                                $resposta->setTramite($tramite);
-                                $tramite->adicionaRespostaPergunta($resposta);
+                if (is_array($setores_fase)){
+                    foreach ($setores_fase as $setor_fase) {
+                        if ($setor_fase != null) {
+                            foreach ($setor_fase->getPerguntas() as $pergunta) {
+                                if (isset($_POST['resposta_pergunta' . $pergunta->getId()])) {
+                                    $resposta = new RespostaPergunta();
+                                    $resposta->setPergunta($pergunta);
+                                    $resposta->setPerguntaTxt($pergunta->getDescricao());
+                                    $resposta->setResposta($_POST['resposta_' . $pergunta->getId()]);
+                                    $resposta->setObservacoes($_POST['observacoes_' . $pergunta->getId()]);
+                                    $resposta->setData(new DateTime());
+                                    $resposta->setTramite($tramite);
+                                    $tramite->adicionaRespostaPergunta($resposta);
+                                }
                             }
+                        }
+                    }
+                } else {
+                    foreach ($setores_fase->getPerguntas() as $pergunta) {
+                        if (isset($_POST['resposta_pergunta' . $pergunta->getId()])) {
+                            $resposta = new RespostaPergunta();
+                            $resposta->setPergunta($pergunta);
+                            $resposta->setPerguntaTxt($pergunta->getDescricao());
+                            $resposta->setResposta($_POST['resposta_' . $pergunta->getId()]);
+                            $resposta->setObservacoes($_POST['observacoes_' . $pergunta->getId()]);
+                            $resposta->setData(new DateTime());
+                            $resposta->setTramite($tramite);
+                            $tramite->adicionaRespostaPergunta($resposta);
                         }
                     }
                 }
             }
         }
     }
-
 }

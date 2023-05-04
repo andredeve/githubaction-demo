@@ -80,10 +80,10 @@
         </div>
         <div class="form-group">
             <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" name="assinaturaObrigatoria"
-                       id="customCheckAssinaturaObrigatoria" onchange="validarObrigatorio(this)"
+                <input type="checkbox" class="custom-control-input" name="assinaturaObrigatoriaMultiplos"
+                       id="customCheckAssinaturaObrigatoriaMultiplos" onchange="validarObrigatorio(this)"
                        {if $campo->getAssinaturaObrigatoria() eq true}checked{/if}>
-                <label class="custom-control-label" for="customCheckAssinaturaObrigatoria">
+                <label class="custom-control-label" for="customCheckAssinaturaObrigatoriaMultiplos">
                     Marque caso assinatura digital seja obrigatória. (Não aplicável para contribuinte).
                 </label>
             </div>
@@ -110,7 +110,7 @@
                    href="{$app_url}_files/processos/templates/{$campo->getTemplate()}"><i class="fa fa-paperclip"></i>
                     Visualizar Template</a>
             {/if}
-            <input accept=".doc,.docx" type="file" class="form-control-file form-control-sm fileinput" name="template"/>
+            <input accept="application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document" type="file" class="form-control-file form-control-sm fileinput" name="template"/>
             <small class="form-text text-muted">
                 * Insira um template do word para o arquivo a ser anexado no processo. (Não aplicável para contribuinte)
             </small>

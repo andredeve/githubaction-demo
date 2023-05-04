@@ -88,7 +88,7 @@
                         {/if}
                         <div class="custom-control custom-checkbox">
                             <small class="form-text text-muted">* Tamanho máximo arquivo: {ini_get('post_max_size')}</small>
-                            <small class="form-text text-muted">* Extensões permitidas: pdf, jpg, jpeg, gif e png.</small>
+                            <small class="form-text text-muted">* Extensões permitidas: pdf, jpg, jpeg, gif, png, xsl, xslx, mp3 e mp4.</small>
                             <div id="kartik-file-errors"></div>
                             <div class="file-loading">
                                 <input id="multi-arquivos" name="arquivos[]"  multiple type="file" data-show-caption="true"
@@ -107,10 +107,6 @@
                     </div>
                 </form>
             </div>
-            {*<div class="modal-footer">
-            <button type="button" class="btn btn-primary"><i class="fa fa-check"></i> Ok</button>
-            <button type="button" class="btn btn-light border" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
-            </div>*}
         </div>
     </div>
 </div>

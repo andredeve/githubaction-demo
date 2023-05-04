@@ -10,7 +10,7 @@
     </div>
     <input type="hidden" name="arquivo_processo" value="{$anexo->getArquivo()}"/>
     <small class="form-text text-muted">* Tamanho máximo arquivo: {ini_get('post_max_size')}</small>
-    <small class="form-text text-muted">* Extensões permitidas: pdf, jpg, jpeg, gif e png.</small>
+    <small class="form-text text-muted">* Extensões permitidas: pdf, jpg, jpeg, gif, png, xsl, xslx, mp3 e mp4.</small>
     <div id="kartik-file-errors"></div>
 </div>
 <!-- Editor de Modelo -->

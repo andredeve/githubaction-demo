@@ -249,6 +249,9 @@ class ProcessoController extends AppController
             $setores = new ArrayCollection();
             foreach ($tramites as $tramite) {
                 $setor = $tramite->getSetorAtual();
+                if(!$setor || !$setor->getId()){
+                    continue;
+                }
                 if (!$setores->contains($setor)) {
                     $setores->add($setor);
                 }
@@ -269,6 +272,9 @@ class ProcessoController extends AppController
                     $report->Cell($w[$i], 5, $header, $last ? 'TB' : 'RTB', $last ? 1 : 0, $a[$i]);
                 }
                 $report->SetFont('times', '', 8);
+                // echo "<pre>";
+                // \Doctrine\Common\Util\Debug::dump($setor);
+                // echo "</pre>";
                 foreach (Tramite::getTramitesSetor($tramites, $setor) as $tramite) {
                     $processo = $tramite->getProcesso();
                     $report->Row(array(
@@ -1305,38 +1311,22 @@ class ProcessoController extends AppController
         $processo_id = func_get_args()[1];
         $processo = (new Processo())->buscar($processo_id);
 
-        /**Inicializa um array com os id's dos anexos.
-         * Essa contagem serve como validação caso o usuário tenha selecionado anexos dos processos apensos
-        */
-        if (isset($_POST["anexos"]) && !empty($_POST["anexos"])){
-            $anexos_id = $_POST["anexos"];
-        }
-
         include APP_PATH . 'lib/pdf-merger/PDFMerger.php';
         $pdf = new PDFMerger();
 
-        if(AppController::getClienteConfig("adicionar_paginacao")){
-            $pdf->addPDF($processo->getAnexosPath() . "capa_{$processo->getNumero()}_{$processo->getExercicio()}_carimbado.pdf");
-        } else {
-            $pdf->addPDF($processo->getAnexosPath() . "capa_{$processo->getNumero()}_{$processo->getExercicio()}.pdf");
-        }
         if (isset($_POST["anexos"]) && !empty($_POST["anexos"])){
-            foreach ($processo->getComponentes(false, true) as $componente) {
-                foreach ($_POST["anexos"] as $anexoSelecionado){
-                    if($componente->getAnexo()->getId() == $anexoSelecionado){
-                        $anexo = $componente->getAnexo();
-                        $fileCarimbado = $anexo->getArquivoCarimbado();
-                        if((isset($fileCarimbado) && is_file($fileCarimbado)) ){
-                            $pdf->addPDF($fileCarimbado);
-                        }else if (isset($file) && is_file($file)) {
-                            $pdf->addPDF($file);
-                        }
-                        /* Remove o primeiro elemento do array */
-                        array_shift($anexos_id);
-                    }
-                }
+            
+            foreach($_POST["anexos"] as $anexoSelecionado){
+                $pdf->addPDF($anexoSelecionado);
             }
+            
         } else {
+            if(AppController::getClienteConfig("adicionar_paginacao")){
+                $pdf->addPDF($processo->getAnexosPath() . "capa_{$processo->getNumero()}_{$processo->getExercicio()}_carimbado.pdf");
+            } else {
+                $pdf->addPDF($processo->getAnexosPath() . "capa_{$processo->getNumero()}_{$processo->getExercicio()}.pdf");
+            }
+
             foreach ($processo->getComponentes(true, true) as $componente) {
                 if ($componente->getAnexo() ) {
                     $anexo = $componente->getAnexo();
@@ -1351,35 +1341,14 @@ class ProcessoController extends AppController
                     $pdf->addPDF($file);
                 }
             }
-        }
 
-        /* Caso o array seja maior que um, então ainda tem anexos para juntar ao arquivo à ser baixado */
-        if ($processo->getApensos() && (count($anexos_id) > 0 || empty($_POST["anexos"]))) {
-            foreach ($processo->getApensos() as $apenso) {
-                //Caso ainda existam anexos para serem juntados ao arquivo, adiciona a capa do apenso.
-                if (count($anexos_id) > 0 || empty($_POST["anexos"])){
+            if ($processo->getApensos()) {
+                foreach ($processo->getApensos() as $apenso) {
                     if(AppController::getClienteConfig("adicionar_paginacao")){
                         $pdf->addPDF($apenso->getAnexosPath() . "capa_{$apenso->getNumero()}_{$apenso->getExercicio()}_carimbado.pdf");
                     } else {
                         $pdf->addPDF($apenso->getAnexosPath() . "capa_{$apenso->getNumero()}_{$apenso->getExercicio()}.pdf");
                     }
-                }
-                if (isset($_POST["anexos"]) && !empty($_POST["anexos"])){
-                    foreach ($apenso->getComponentes(false, true) as $componente) {
-                        foreach ($_POST["anexos"] as $anexoSelecionado){
-                            if($componente->getAnexo()->getId() == $anexoSelecionado){
-                                $anexo = $componente->getAnexo();
-                                $fileCarimbado = $anexo->getArquivoCarimbado();
-                                if((isset($fileCarimbado) && is_file($fileCarimbado)) ){
-                                    $pdf->addPDF($fileCarimbado);
-                                }else if (isset($file) && is_file($file)) {
-                                    $pdf->addPDF($file);
-                                }
-                                array_shift($anexos_id);
-                            }
-                        }
-                    }
-                } else {
                     foreach ($apenso->getComponentes(true, true) as $componente) {
                         if ($componente->getAnexo() ) {
                             $anexo = $componente->getAnexo();
@@ -1398,7 +1367,6 @@ class ProcessoController extends AppController
             }
         }
         
-
         $pdf->merge('browser', "Processo_{$processo->getNumero()}_{$processo->getExercicio()}.pdf");
     }
 
@@ -1496,7 +1464,7 @@ class ProcessoController extends AppController
                 }
             }
         }
-        $pdf->Text($mesq, $msup + 28, strtoupper(utf8_decode("RESPONSÝVEL: " . substr($processo->getUsuarioAbertura(), 0, $words_count)))); // Imprime a descricao de acordo com as coordenadas
+        $pdf->Text($mesq, $msup + 28, strtoupper(utf8_decode("RESPONSÁVEL: " . substr($processo->getUsuarioAbertura(), 0, $words_count)))); // Imprime a descricao de acordo com as coordenadas
         $pdf->Output();
     }
 

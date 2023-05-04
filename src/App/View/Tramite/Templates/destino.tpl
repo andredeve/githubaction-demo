@@ -27,7 +27,11 @@
             {include file="../../Tramite/Templates/linha_envio.tpl" numero_fase="{$numero_fase}" prazo_destino=$setor_fase->getVencimento() setor_origem=$setor_origem}
         {/foreach}
     {else}
-        {include file="../../Tramite/Templates/linha_envio.tpl" i=0 prazo_destino="" qtde_linhas=1 setor=null setor_origem=$setor_origem}
+        {if isset($setores) and count($setores) > 0}
+            {include file="../../Tramite/Templates/linha_envio.tpl" i=0 prazo_destino="" qtde_linhas=1 setores=$setores setor_origem=$setor_origem}
+        {else}
+            {include file="../../Tramite/Templates/linha_envio.tpl" i=0 prazo_destino="" qtde_linhas=1 setor=null setor_origem=$setor_origem}
+        {/if}
     {/if}
     </tbody>
 </table>

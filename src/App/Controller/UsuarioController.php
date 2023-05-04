@@ -238,22 +238,19 @@ class UsuarioController extends AppController
      */
     public function autenticar()
     {
-
-       $captcha_data = $_POST['g-recaptcha-response'];
-       $secret_key = AppController::getConfig()['secret_key'];
-       $resposta = new stdClass();
-       $resposta = json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secret_key&response=" . $captcha_data . "&remoteip=" . $_SERVER['REMOTE_ADDR']));
-       if(!$resposta->success){
-           self::setMessage(TipoMensagem::WARNING, ('Por favor, confirme que você não é um robô.'), null, true);
-           return;
-       }
-
-        //if ($resposta->success) {
+        $resposta = $_POST['captcha'];
+        $captcha = $_SESSION['captcha'];
+        if($captcha != $resposta){
+            self::setMessage(TipoMensagem::WARNING, ('Por favor, digite o código da imagem corretamente.'), null, true);
+            return;
+        }
         $login = $this->sanitizeLogin();
         $senha = Usuario::codificaSenha(filter_input(INPUT_POST, 'senha'));
         $usuario = new Usuario();
         $usuario_tentativa = $usuario->buscarPorLogin($login);
         $autenticado = $usuario->autenticar($login, $senha);
+
+
         if (!is_null($autenticado)) {
             if ($autenticado->getAtivo()) {
                 $this->criaSessao($autenticado);
@@ -271,15 +268,12 @@ class UsuarioController extends AppController
                 self::setMessage(TipoMensagem::WARNING, 'Usuário com acesso suspenso ao sistema.', null, true);
             }
         } else {
-            if ($usuario_tentativa ) {
+            if ($usuario_tentativa) {
                 $usuario->registrarLogin($usuario_tentativa, false);
             }
             self::setMessage(TipoMensagem::ERROR, 'Usuário e/ou senha inválidos.', null, true);
+
         }
-        /*} else {
-            self::setMessage(TipoMensagem::WARNING, 'Por favor, confirme que você não é um robô.', null, true);
-        }*/
-        //return $this->route('Login');
     }
 
     /**
@@ -376,10 +370,18 @@ class UsuarioController extends AppController
             $usuario = (new Usuario())->buscar(filter_input(INPUT_POST, 'usuario_id'));
             $senha_gerada = Functions::geraSenha(8, true, true);
             $usuario->setSenha(Usuario::codificaSenha($senha_gerada));
+           
+            
+            //Enviar e-mail de boas vindas com a senha gerada
+            (new Email())->enviarSenhaUsuario($usuario, $senha_gerada);
+            Log::registrarLog(
+                TipoLog::ACTION_UPDATE, 
+                'usuário', 
+                'Uma senha temporária foi enviada para solicitante. Usuário id '.
+                $usuario->getId().' nome '.$usuario->getPessoa()->getNome()
+            );
             $usuario->atualizar();
             //Enviar e-mail de boas vindas com a senha gerada
-            (new Email())->enviarInformacoesAcesso($usuario, $senha_gerada);
-            Log::registrarLog(TipoLog::ACTION_UPDATE, 'usuário', 'Uma senha temporária foi enviada para solicitante. Usuário id '.$usuario->getId().' nome '.$usuario->getPessoa()->getNome());
             self::setMessage(TipoMensagem::SUCCESS, 'Uma senha temporária foi enviada para solicitante.', null, true);
         } catch (DBALException $ex) {
             self::setMessage(TipoMensagem::ERROR, "Erro ao solicitar uma nova senha.", null, true);
@@ -633,16 +635,17 @@ class UsuarioController extends AppController
      */
     public static function recuperarSenha()
     {
-        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-        $usuario = new Usuario();
-        $result = $usuario->buscarPorEmail($email);
+        $login = $_POST['login'];
+        if(preg_match('/^\d{2}.\d{3}\.\d{3}\/\d{4}-\d{2}$/', $login) || preg_match('/^\d{3}.\d{3}\.\d{3}-\d{2}$/', $login)) {
+            $login = str_replace(array(".","\\","-"),array(""), $login);
+       }
+        $usuario = (new Usuario())->buscarporLogin($login);
         try {
-            if ($result != null) {
+            if ($usuario != null) {
                 $senha_temp = Functions::geraSenha(8, true, true);
-                $usuario = $result[0];
                 $usuario->setSenha(Usuario::codificaSenha($senha_temp));
-//                $usuario->atualizar();
                 Log::registrarLog(TipoLog::ACTION_UPDATE, 'usuario', "Sua nova senha foi enviada para o seu e-mail.",$usuario);
+                $usuario->atualizar();
                 $email = new Email();
                 $enviado = $email->enviarSenhaUsuario($usuario, $senha_temp);
                 if ($enviado === true) {
@@ -711,7 +714,9 @@ class UsuarioController extends AppController
             $campos = ["id", "text" => "nome"];
             $resultado = $dao->pesquisarPorNome($termo, $campos, AbstractQuery::HYDRATE_ARRAY);
         } else {
-            $resultado = [];
+            $termo = "%%";
+            $campos = ["id", "text" => "nome"];
+            $resultado = $dao->pesquisarPorNome($termo, $campos, AbstractQuery::HYDRATE_ARRAY);
         }
         echo json_encode(["results" => $resultado, "pagination" => ["more" => false]], JSON_PRETTY_PRINT);
     }

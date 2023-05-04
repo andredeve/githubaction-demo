@@ -619,7 +619,7 @@ class Usuario extends AppModel
      */
     public function enviarEmailConfirmacao()
     {
-        if(isset($_POST['transformar'])){
+        if(isset($_POST['transformar']) || isset($_POST['isInterno'])){
             return;
         }
         if ($this->getTipo() === TipoUsuario::INTERESSADO) {

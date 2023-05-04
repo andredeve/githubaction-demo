@@ -230,10 +230,10 @@ switch ($_GET['tipo_listagem']) {
         $where .= " AND usuario_envio_id={$usuario->getId()}";
         break;
     case 'receber':
-        $where .= " AND is_arquivado=0 AND is_recebido=0";
+        $where .= " AND is_arquivado=0 AND ( is_recebido=0 or is_recebido is null )";
         break;
     case 'contribuintes':
-        $where .= " AND is_arquivado=0 AND is_recebido=0 AND is_interessado_externo=1 AND numero is null";
+        $where .= " AND is_arquivado=0 AND is_recebido=0 AND  numero is null";
         break;
     case 'abertos':
         $where .= " AND is_arquivado=0 AND is_recebido=1";
@@ -246,7 +246,7 @@ switch ($_GET['tipo_listagem']) {
         break;
 }
 //$where .= " AND apensado_id IS NULL ";
-if ($usuario != null && $_GET['tipo_listagem'] != 'enviados' && $usuario->getTipo() != TipoUsuario::MASTER) {
+if ($usuario != null && $_GET['tipo_listagem'] != 'enviados' && !$usuario->isAdm()) {
     $setores = $usuario->getSetoresIds(true);
     
     $where .= !empty($setores)? " AND (setor_atual_id IN({$setores}) OR setor_atual_id IS NULL) ":"";

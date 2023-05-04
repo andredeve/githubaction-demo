@@ -13,12 +13,6 @@
         <select data-placeholder="Selecione" id="select_processo" name="processo_id" class="form-control"
                 data-allow-clear="true">
             <option value="{if $modal eq true}{$processo->getId()}{/if}">{if $modal eq true}{$processo}{/if}</option>
-            {*
-            {foreach $processo->getTramites() as $tramite}
-                <option value="{$tramite->getId()}">Processo: {$processo} | Fase: {$tramite->getNumeroFase()} | Setor
-                    Atual: {$tramite->getSetorAtual()} | Prazo: {$tramite->getVencimento()}</option>
-            {/foreach}
-            *}
         </select>
     </div>
     <div class="form-group">
@@ -33,18 +27,6 @@
             {/foreach}
         </select>
     </div>
-    {*<div class="form-group">
-        <label class="col-form-label">CC:</label>
-        <select id="select_destinatario" data-placeholder="Selecione" name="copias_id[]" class="form-control select2"
-                multiple="true">
-            <option value=""></option>
-            {foreach $usuarios as $usuario}
-                {if $usuario->getId() neq $usuario_logado->getId()}
-                    <option value="{$usuario->getId()}">{$usuario->getNome()}</option>
-                {/if}
-            {/foreach}
-        </select>
-    </div>*}
     <div class="form-group row">
         <div class="col">
             <label class="col-form-label">Assunto:</label>
@@ -84,7 +66,7 @@
     <div class="form-group">
         <label class="col-form-label">Conteúdo da notificação:</label>
         <textarea name="texto" rows="4" class="form-control form-control-sm editor"
-                  required>{if $modal eq true}{$conteudo}{else}{$notificacao->getTexto()}{/if}</textarea>
+            required>{if $modal eq true}{foreach $conteudo as $texto}{$texto}<br/>{/foreach}{else}{$notificacao->getTexto()}{/if}</textarea>
     </div>
     <hr/>
     <div class="form-group">
@@ -99,10 +81,3 @@
         {/if}
     </div>
 </form>
-
-<script>
-$(".select2").select2();
-</script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>

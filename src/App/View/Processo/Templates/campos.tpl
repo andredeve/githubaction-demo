@@ -186,7 +186,9 @@
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#apensosTab" role="tab" aria-controls="apensosTab" aria-selected="false">
                             <i class="fa fa-files-o"></i> Apensos
-                            <span id="qtde_apensos" class="badge badge-primary">{$processo->getApensos()->count()}</span>
+                            {if !$processo->getApensado()}
+                                <span id="qtde_apensos" class="badge badge-primary">{$processo->getApensos()->count()}</span>
+                            {/if}
                             {if $processo->getApensado()}
                                 <span id="processo_apensado" class="badge badge-warning">
                                     <i class="fa fa-exclamation"></i>
@@ -258,33 +260,40 @@
                             </a>
                         </p>
                     {/if}
-                    <div class="form-group">
-                        <label class="col-form-label">{$parametros['nomenclatura']}s vinculados a este:</label>
-                        <div class="float-right">
-                            <a href="#" entidade="Processo"
-                               title="Pesquisa avançada por {$parametros['nomenclatura']}"
-                               class="btn btn-xs btn-info btn-selectionar-entidade" data-processoid="{$processo->getId()}" {if !empty($processo->getApensado())}data-apensadoid="{$processo->getApensado()->getId()}"{/if}><i
-                                        class="fa fa-search"></i></a>
-                            <a href="#" processo_id="{$processo->getId()}"
-                               title="Cadastrar novo {$parametros['nomenclatura']} Apenso"
-                               class="btn btn-xs btn-success btn-cadastrar-apenso"><i
-                                        class="fa fa-plus"></i></a>
+                    {if !$processo->getApensado()}
+                        <div class="form-group">
+                            <label class="col-form-label">{$parametros['nomenclatura']}s vinculados a este:</label>
+                            <div class="float-right">
+                                <a href="#" entidade="Processo"
+                                title="Pesquisa avançada por {$parametros['nomenclatura']}"
+                                class="btn btn-xs btn-info btn-selectionar-entidade" data-processoid="{$processo->getId()}" {if !empty($processo->getApensado())}data-apensadoid="{$processo->getApensado()->getId()}"{/if}><i
+                                            class="fa fa-search"></i></a>
+                                <a href="#" processo_id="{$processo->getId()}"
+                                title="Cadastrar novo {$parametros['nomenclatura']} Apenso"
+                                class="btn btn-xs btn-success btn-cadastrar-apenso"><i
+                                            class="fa fa-plus"></i></a>
+                            </div>
+                            <select id="select_apensos" class="form-control select_processo"
+                                    name="apensos_id[]" multiple="true">
+                                <option></option>
+                                {foreach $processo->getApensos() as $vinculado}
+                                    <option value="{$vinculado->getId()}" selected>{$vinculado}</option>
+                                {/foreach}
+                            </select>
+                            <small class="form-text text-muted">Selecione um ou mais processos que serão vinculados e
+                                este.
+                            </small>
                         </div>
-                        <select id="select_apensos" class="form-control select_processo"
-                                name="apensos_id[]" multiple="true">
-                            <option></option>
-                            {foreach $processo->getApensos() as $vinculado}
-                                <option value="{$vinculado->getId()}" selected>{$vinculado}</option>
-                            {/foreach}
-                        </select>
-                        <small class="form-text text-muted">Selecione um ou mais processos que serão vinculados e
-                            este.
-                        </small>
-                    </div>
-                    <div id="divApensos">
-                        {$resultado=$processo->getApensos()->toArray()}
-                        {include file="../../Processo/Templates/listar.tpl"}
-                    </div>
+                        <div id="divApensos">
+                            {$resultado=$processo->getApensos()->toArray()}
+                            {include file="../../Processo/Templates/listar.tpl"}
+                        </div>
+                    {else}
+                        <div class="alert alert-danger" role="alert">
+                                Não é possível apensar processos a este, pois ele está apensado ao {$parametros['nomenclatura']} nº {$processo->getApensado()}.<br><br>
+                                Caso necessário, acesse o {$parametros['nomenclatura']} nº {$processo->getApensado()} e desapense-o para liberar essa funcionalidade.
+                        </div>
+                    {/if}
                 </div>
                 <div class="tab-pane" id="vencimentosTab" role="tabpanel">
                     {$documentos=$processo->getDocumentos()}

@@ -7,6 +7,7 @@
 namespace App\Util;
 
 use App\Controller\IndexController;
+use App\Model\Estado;
 use Mpdf\Mpdf;
 use const APP_PATH;
 
@@ -41,7 +42,10 @@ class Html2Pdf extends Mpdf
         $this->SetXY(65, 10);
         $this->Cell(70, 5, $this->cliente['nome'], 0, 2, 'L');
         $this->SetFont($this->fontFamily, 'B', 12);
-        $this->Cell(70, 5, "ESTADO DE MATO GROSSO DO SUL", 0, 2, 'L');
+        $cliente = IndexController::getClienteConfig();
+        $estado = ((new Estado())->buscarPorUF($cliente['estado']));
+        $estado = mb_convert_encoding($estado, 'Windows-1252', 'UTF-8');
+        $this->Cell(70, 5,"Estado de " . $estado, 0, 2, 'L');
         $this->SetFont($this->fontFamily, '', 8);
         $this->Cell(70, 4, $this->cliente['endereco'] . '.', 0, 2, 'L');
         $this->Cell(70, 3, 'CNPJ: ' . $this->cliente['cnpj'] . " / Telefone: " . $this->cliente['telefone'], 0, 0, 'L');

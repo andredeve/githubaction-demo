@@ -93,30 +93,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <div class="col">
-                            <label class="col-form-label {if $acao eq 'inserir'}required{/if}">Senha:</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class="fa fa-key"></i></div>
-                                </div>
-                                <input type="password" id="senha" minlength="5" name="senha"
-                                       class="form-control form-control-sm" {if $acao eq 'inserir'}required="true"{/if}>
-                            </div>
-                            <div id="messages"></div>
-                        </div>
-                        <div class="col">
-                            <label class="col-form-label {if $acao eq 'inserir'}required{/if}">Confirma senha:</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text"><i class="fa fa-key"></i></div>
-                                </div>
-                                <input type="password" id="confirmaSenha" equalTo="#senha" name="confirmaSenha"
-                                       placeholder="Confirme a senha" class="form-control form-control-sm"
-                                       {if $acao eq 'inserir'}required="true"{/if}>
-                            </div>
-                        </div>
-                    </div>
+                   
                 </div>
                 <div class="tab-pane" id="permissoesTab" role="tabpanel">
                     <div class="form-group">
@@ -141,6 +118,11 @@
             {if $usuario->getId() neq ""}
                 <a class="btn btn-danger btn-excluir" title="Excluir"
                    href="{$app_url}usuario/excluir/id/{$usuario->getId()}"><i class="fa fa-user-times"></i> Excluir</a>
+                <a 
+                    class="btn btn-warning border btn-enviar-senha" 
+                    usuario="{$usuario->getId()}"
+                    title="O sistema vai criar uma nova senha que será enviada para o e-mail cadastrado"
+                    href="javascript:;"><i class="fa  fa-key"></i> Enviar Senha</a>
             {/if}
             <a class="btn btn-light border btn-loading" href="{$app_url}usuario"><i class="fa fa-times"></i> Cancelar</a>
         </div>
@@ -160,3 +142,4 @@
     </div>
 </form>
 
+<script defer="true" src="{$app_url}assets/js/view/usuario/recuperar_senha.js"></script>

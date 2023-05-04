@@ -141,6 +141,7 @@ abstract class AppDao
      */
     public function inserir($object = null, bool $validarSomenteLeitura = true): ?int
     {
+        
         if(AppController::sistemaSomenteLeitura() && $validarSomenteLeitura) {
             throw new BusinessException("Sistema em modo somente leitura.");
         }
@@ -153,10 +154,10 @@ abstract class AppDao
         } else {
             $entidade = $this->entidade;
         }
+        
         $this->getEntityManager()->persist($entidade);
         $this->flush($validarSomenteLeitura);
         return $entidade->getId();
-        
     }
 
     /**

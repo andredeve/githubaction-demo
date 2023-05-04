@@ -195,8 +195,14 @@ class Converter extends AppModel
         return 0;
     }
 
-    public function atualizar(bool $validarSomenteLeitura = true, bool $considerarPermissoes = true)
+
+    public function atualizar(bool $validarSomenteLeitura = true,$validarPermissao = true)
     {
+        echo "File: ".__FILE__. " Linha: ". __LINE__;
+        echo "<pre>";
+        var_dump("Enviar para assinatura", (new \Exception())->getTraceAsString());
+        echo "<pre>";
+        die();
         $this->getDAO()->merge();
     }
 

@@ -52,7 +52,7 @@ class ProcessoDao extends AppDao
             $sql = "SELECT COUNT(p.id) as qtde FROM processo p " .
                 "LEFT JOIN tramite t ON t.processo_id=p.id AND t.numero_fase=p.numero_fase AND t.assunto_id=p.assunto_id " .
                 "AND t.is_cancelado=0 AND t.is_despachado=0 LEFT JOIN interessado i ON p.interessado_id = i.id " .
-                "WHERE p.id IS NOT NULL AND p.is_arquivado=0 AND t.is_recebido=0 AND i.is_externo=1 AND p.numero is null";
+                "WHERE p.id IS NOT NULL AND p.is_arquivado=0 AND t.is_recebido=0 AND  p.numero is null";
         } else {
             $sql = "SELECT COUNT(p.id) as qtde FROM processo p " .
                 "LEFT JOIN tramite t ON t.processo_id=p.id " .
@@ -65,8 +65,8 @@ class ProcessoDao extends AppDao
         }
         if ($usuario != null && $tipo != 'enviados' && $usuario->getTipo() != TipoUsuario::MASTER) {
             $setores = $usuario->getSetoresIds(true);
-            if(!empty($setores)){
-                $sql .= " AND t.setor_atual_id IN($setores)";
+            if (!empty($setores)) {
+                $sql .= " AND (setor_atual_id IN({$setores}) OR setor_atual_id IS NULL) ";
             }
             $sql .= " AND IF(usuario_destino_id IS NOT NULL,usuario_destino_id={$usuario->getId()},1)=1";
         }
@@ -159,8 +159,7 @@ class ProcessoDao extends AppDao
     function listarQtdeDeTramitesForaDoFluxo($dataInicio, $dataFim, $assunto_id, $interessado_id){
         $sql = "SELECT ("
             . "     SELECT count(t.id) FROM  App\Model\Tramite t "
-            . "     WHERE t.processo = p AND t.foraFluxograma=true "
-            . "         AND t.setorAtual = i.setor"
+            . "     WHERE t.processo = p AND t.foraFluxograma=true and  t.setorAtual = p.setorOrigem"
             . ") AS qtde_fora_fluxo, p"
             . " FROM App\Model\Processo p "
             . " JOIN p.interessado i"

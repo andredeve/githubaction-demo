@@ -29,7 +29,7 @@
     <div class="row">
         <div class="col-md col-sm-12">
             <div class="small-box bg-yellow-gradient">
-                <a href="{$app_url}processo/arquivados" class="text-white">
+                <a href="{$app_url}processo/receber" class="text-white">
                     <div class="inner">
                         <h3 class="qtde_processos_receber pl-2">{$qtde_receber}</h3>
                         <p class="pl-2">A Receber</p>
@@ -38,7 +38,7 @@
                         <i class="fa fa-exclamation-triangle"></i>
                     </div>
                 </a>
-                <a href="{$app_url}processo/arquivados" class="small-box-footer">Mais informações
+                <a href="{$app_url}processo/receber" class="small-box-footer">Mais informações
                     <i class="fa fa-arrow-circle-right"></i>
                 </a>
             </div>

@@ -51,6 +51,12 @@
                 {/foreach}
             </select>
         </div>
+        <div class="form-group">
+            <label class="col-form-label">Setores atribuídos:</label>
+            <select id="select_setores_usuario" name="setores_id[]" class="select2Tree" multiple="true">
+                {include file="../../Setor/Templates/select.tpl"}
+            </select>
+        </div>
     {else}
         <input type="hidden" name="isAtivo" value="{$assunto->getIsAtivo()}"/>
         <input type="hidden" name="assunto_pai_id" value=""/>

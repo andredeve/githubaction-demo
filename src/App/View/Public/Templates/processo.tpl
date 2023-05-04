@@ -122,7 +122,7 @@
                            aria-controls="anexosTabView"
                            aria-selected="false"><i class="fa fa-paperclip"></i> Documentos <span
                                     id="qtde_anexos_processo"
-                                    class="badge badge-primary">{count($processo->getAnexos())}</span></a>
+                                    class="badge badge-primary">{count($processo->getAnexosConsultaPublica())}</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#tramitesTabView" role="tab"

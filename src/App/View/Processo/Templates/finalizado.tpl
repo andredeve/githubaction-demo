@@ -10,7 +10,7 @@
 <hr/>
 <div>
     {if $usuarioEhInteressado}
-        <a href="{$app_url}Contribuinte/home" class="btn btn-primary"><i class="fa fa-home"></i> Página Inicial</a>
+        <a href="{$app_url}" class="btn btn-primary"><i class="fa fa-home"></i> Página Inicial</a>
         <a href="{$app_url}Contribuinte/cadastrar" class="btn btn-success"><i class="fa fa-plus"></i> Novo {$parametros['nomenclatura']}</a>
         <a href="{$app_url}Contribuinte/editar/id/{$processo->getId()}" class="btn btn-primary"><i class="fa fa-search"></i> Visualizar Solicitação de {$parametros['nomenclatura']}</a>
     {else}

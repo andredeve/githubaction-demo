@@ -13,8 +13,10 @@
             <th>Responsável</th>
             <th>Data Trâmite</th>
             <th>Vencimento</th>
-            <th>Status</th>
+            <th {if !$arquivados}class="hidden"{/if}>Data Arquivamento</th>
+            <th {if $arquivados}class="hidden"{/if}>Status</th>
             <th class="hidden">Objeto</th>
+            <th class="hidden">Motivo Arquivamento</th>
         </tr>
         </thead>
         <tbody>
@@ -47,8 +49,10 @@
                     {$tramite->getDataVencimento()->format('d/m/Y')}
                 {/if}
                 </td>
-                <td>{$tramite->getStatus()}</td>
+                <td {if !$arquivados}class="hidden"{/if}>{$processo->getDataArquivamento(true)}</td>
+                <td {if $arquivados}class="hidden"{/if}>{$tramite->getStatus()}</td>
                 <td class="hidden">{$processo->getObjeto()}</td>
+                <td class="hidden">{$processo->getJustificativaEncerramento()}</td>
             </tr>
         {/foreach}
         </tbody>

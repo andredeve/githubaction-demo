@@ -32,7 +32,9 @@ class TipoCampo {
             self::HORA => 'Hora',
             self::EMAIL => 'E-mail',
             self::ARQUIVO => 'Arquivo', 
-            self::ARQUIVO_MULTIPLO => 'Arquivo Múltiplo',
+            // Com as mudanças feitas para Três Lagoas, o campo de Arquivo já faz o tratamento de vários arquivos, tornando
+            // desnecessário esse tipo de campo.
+            //self::ARQUIVO_MULTIPLO => 'Arquivo Múltiplo',
             self::PROCESSO => \App\Controller\IndexController::getParametosConfig()['nomenclatura']  
             
         );

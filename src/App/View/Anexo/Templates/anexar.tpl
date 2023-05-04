@@ -13,14 +13,10 @@
                         <input id="arquivo_processo" name="arquivo_processo" type="file" data-show-caption="true" data-msg-placeholder="Selecione um arquivo para anexar...">
                     </div>
                     <small class="form-text text-muted">* Tamanho máximo arquivo: {ini_get('post_max_size')}</small>
-                    <small class="form-text text-muted">* Extensões permitidas: pdf, jpg, jpeg, gif e png.</small>
+                    <small class="form-text text-muted">* Extensões permitidas: pdf, jpg, jpeg, gif, png, xsl, xslx, mp3 e mp4.</small>
                     <div id="kartik-file-errors"></div>
                 </div>
             </div>
-            {*<div class="modal-footer">
-            <button type="button" class="btn btn-primary"><i class="fa fa-check"></i> Ok</button>
-            <button type="button" class="btn btn-light border" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
-            </div>*}
         </div>
     </div>
 </div>

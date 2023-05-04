@@ -41,5 +41,7 @@ $_SESSION['anexo'] = serialize($anexo);
 $smarty->assign("anexo", $anexo);
 $smarty->assign("modelos", $modelos);
 $smarty->assign("file_version", AppController::getConfig("file_version"));
+$smarty->assign("editar_info", $_POST['editar_info']);
+$smarty->assign("editar_arquivo", $_POST['editar_arquivo']);
 include VIEW_PATH . 'Anexo/_assign.php';
 $smarty->display('formulario.tpl');

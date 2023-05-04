@@ -3,6 +3,7 @@
 namespace App\Log;
 
 use App\Controller\UsuarioController;
+use App\Controller\SubstituicaoController;
 use App\Enum\TipoHistoricoAnexo;
 use App\Enum\TipoLog;
 use App\Model\Anexo;
@@ -116,7 +117,7 @@ class HistoricoAnexo {
      * @return array
      */
     public static function historico(Anexo $anexo): array {
-        $historico = array();
+        $historico['historicoGeral'] = array();
         $log = AttachLogger::getLog($anexo->getId());
         if (!empty($log['create'])) {
             foreach ($log['create'] as $item) {
@@ -124,7 +125,7 @@ class HistoricoAnexo {
                 $historicoItem['usuario'] = $item['user_name'];
                 $historicoItem['data'] = DateUtil::timestampToDate(intval($item['date']))->format("d/m/Y - H:i");
                 $historicoItem['mensagem'] = "Anexo adicionado por {$historicoItem['usuario']}.";
-                $historico[] = $historicoItem;
+                $historico['historicoGeral'][] = $historicoItem;
             }
         }
         if (!empty($log['update'])) {
@@ -133,7 +134,7 @@ class HistoricoAnexo {
                 $historicoItem['usuario'] = $item['user_name'];
                 $historicoItem['data'] = DateUtil::timestampToDate(intval($item['date']))->format("d/m/Y - H:i");
                 $historicoItem['mensagem'] = "Anexo atualizado por {$historicoItem['usuario']}. {$item['observation']}";
-                $historico[] = $historicoItem;
+                $historico['historicoGeral'][] = $historicoItem;
             }
         }
         if (!empty($log['delete'])) {
@@ -142,9 +143,20 @@ class HistoricoAnexo {
                 $historicoItem['usuario'] = $item['user_name'];
                 $historicoItem['data'] = DateUtil::timestampToDate(intval($item['date']))->format("d/m/Y - H:i");
                 $historicoItem['mensagem'] = "Anexo removido por {$historicoItem['usuario']}. {$item['observation']}";
-                $historico[] = $historicoItem;
+                $historico['historicoGeral'][] = $historicoItem;
             }
         }
+
+        $historico['historicoArquivos'] = array();
+        $substituicao = new SubstituicaoController();
+            foreach ($substituicao->buscarSubstituicoesAnexo($anexo->getId()) as $item){
+                $historicoItem['id'] = $item->getId() . 1;
+                $historicoItem['usuario'] = $item->getResponsavel()->getPessoa()->getNome();
+                $historicoItem['data'] = $item->getModificadoEm()->format("d/m/Y - H:i");
+                $historicoItem['mensagem'] = "Motivo da substituição:<br/>{$item->getMotivo()}<br/><br/><a target='_blank' href={$item->getAnexoAnterior()->getPathUrl()}{$item->getAnexoAnterior()->getArquivo()}><i class='fa fa-file'></i>  Versão anterior</a>";
+                $historico['historicoArquivos'][] = $historicoItem;
+            }
+
         return $historico;
     }
 

@@ -22,9 +22,10 @@ if ($grupo->getTramitar() || in_array($usuario_logado->getTipo(), array(TipoUsua
         //Trâmite Comum
         $tramite = (new Tramite())->buscar(isset($_POST['tramite_id_sel']) ? $_POST['tramite_id_sel'][0] : $_POST['tramite_id']);
         $processo = $tramite->getProcesso();
-        if(isset($_POST['tramites']) && !empty($_POST['tramites']) && $_POST['tramites'] < count($processo->getTramites()))
+        if(isset($_POST['tramites']) && !empty($_POST['tramites']) && $_POST['tramites'] < count($processo->getTramites()) && $usuario_logado->getTipo() != TipoUsuario::INTERESSADO)
             die('Esse processo já foi tramitado. Por favor, atualize a página.');
         $smarty->assign('assunto', $processo->getAssunto());
+        $smarty->assign('temSetores', $processo->getAssunto()->getSetores($usuario_logado));
         $smarty->assign('setor_origem', $tramite->getSetorAtual());
         $smarty->assign('processo', $processo);
         $smarty->assign('tramite', $tramite);

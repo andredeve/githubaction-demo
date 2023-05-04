@@ -3,10 +3,13 @@
 use App\Controller\IndexController;
 use App\Model\Processo;
 
+
+if (!ini_get('max_execution_time')) {
+    set_time_limit(300);
+}
 /**
  * @var Smarty $smarty
  */
-
 if(empty($_POST['carregadoByController'])){
     include_once '../../../../bootstrap.php';
     include_once '../../../../_config/smarty.config.php';

@@ -42,8 +42,12 @@ class UsuarioDao extends AppDao
      */
     function buscarPorNome($nome)
     {
-        $query = parent::getEntityManager()->createQuery('SELECT u FROM App\Model\Usuario u WHERE u.nome=:nome');
-        $query->setParameter('nome', $nome);
+        $sql = "SELECT u, p FROM App\Model\Usuario u "
+        . " JOIN App\Model\Pessoa p"
+        . " WHERE p.nome LIKE :nome";
+        $query = parent::getEntityManager()->createQuery($sql);
+        $query->setParameter('nome', $nome . '%');
+        $query->setMaxResults(50);
         return $query->getResult();
     }
 
@@ -154,7 +158,7 @@ class UsuarioDao extends AppDao
         if (!is_null($campos)) {
             foreach ($campos as $key => $campo) {
                 if (!is_int($key)) {
-                    $camposTemp[] = "u." . $campo . " AS " . $key;
+                    $camposTemp[] = "p." . $campo . " AS " . $key;
                 } else {
                     $camposTemp[] = "u." . $campo;
                 }
@@ -167,7 +171,7 @@ class UsuarioDao extends AppDao
         } else {
             $fields = "u";
         }
-        $query = parent::getEntityManager()->createQuery('SELECT ' . $fields . ' FROM App\Model\Usuario u WHERE u.nome LIKE :nome ORDER BY u.nome');
+        $query = parent::getEntityManager()->createQuery('SELECT ' . $fields . ' FROM App\Model\Usuario u  JOIN App\Model\Pessoa p WITH p=u.pessoa WHERE p.nome LIKE :nome AND u.ativo = 1 ORDER BY p.nome');
         $query->setParameter('nome', $nome);
         return $query->getResult($hydratationMode);
     }

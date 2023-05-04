@@ -13,13 +13,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\TransactionRequiredException;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Exception;
 
 /**
  * @Entity
  * @HasLifecycleCallbacks
  * @Table(name="tramite",
- *     uniqueConstraints={@UniqueConstraint(name="tramite_unique",columns={"processo_id","data_envio"})},
  * indexes={
  *     @Index(name="fase_index", columns={"numero_fase"}),
  *     @Index(name="usuario_envio_index", columns={"usuario_envio_id"}),
@@ -553,6 +553,9 @@ class Tramite extends AppModel
         $this->setorAtual = $setorAtual;
     }
 
+    /**
+     * @return Usuario
+     */
     function getResponsavel()
     {
         if ($this->isCancelado) {
@@ -779,7 +782,7 @@ class Tramite extends AppModel
         $setor_id = $setor->getId();
         $tramites_setor = array();
         foreach ($tramites as $tramite) {
-            if ($tramite->getSetorAtual()->getId() == $setor_id) {
+            if ($tramite->getSetorAtual() && $tramite->getSetorAtual()->getId() == $setor_id) {
                 $tramites_setor[] = $tramite;
             }
         }
@@ -859,5 +862,23 @@ class Tramite extends AppModel
     
     public function __toString() {
         return "Trâmite: " . $this->id;
+    }
+
+    /**
+     * @PrePersist
+     */
+    function jaFoiTramitado(LifecycleEventArgs $event){
+        $tramitePersist =  $event->getObject();
+        $tramites = $this->getProcesso()->getTramites(null, false);
+        $jaExisteTramiteSemDespachar = false;
+        foreach($tramites as $tramite){
+            if( empty($tramite->getIsDespachado()) && $tramite->getId() != $tramitePersist->getId()){
+                $jaExisteTramiteSemDespachar = true;
+                break;
+            }
+        }
+        if($jaExisteTramiteSemDespachar){
+            throw new Exception("Tramite duplicado entre em contato com suporte."); 
+        }
     }
 }
