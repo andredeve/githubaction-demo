@@ -95,7 +95,7 @@
                 <select name="responsavel_id" data-allow-clear="true" class="form-control select2 responsavel_filter">
                     <option value=""></option>
                     {foreach $usuarios as $usuario}
-                        <option value="{$usuario->getId()}">{$usuario->getPessoa()->getNome()}</option>
+                    <option value="{$usuario->getId()}">{if $usuario->getPessoa()}{$usuario->getPessoa()->getNome()}{else} Não Informado Cód. {$usuario->getId()}{/if}</option>
                     {/foreach}
                 </select>
             </div>

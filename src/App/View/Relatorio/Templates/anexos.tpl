@@ -31,8 +31,8 @@
                     <label>Usuário:</label>
                     <select id="select_usuario" name="usuario_id" class="select2 form-control form-filter">
                         <option value="">Todos</option>
-                        {foreach $usuarios as $usuario}
-                            <option value="{$usuario->getId()}">{$usuario->getPessoa()->getNome()}</option>
+                        {foreach $usuarios as $usuario} 
+                        <option value="{$usuario->getId()}">{if $usuario->getPessoa()}{$usuario->getPessoa()->getNome()}{else}Não Informado Cód. {$usuario->getId()}{/if}</option>
                         {/foreach}
                     </select>
                 </div>

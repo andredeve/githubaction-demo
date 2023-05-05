@@ -167,7 +167,7 @@ class ProcessoController extends AppController
             $setores = new ArrayCollection();
             foreach ($tramites as $tramite) {
                 $setor = $tramite->getSetorAtual();
-                if (!$setores->contains($setor)) {
+                if ($setor && !$setores->contains($setor)) {
                     $setores->add($setor);
                 }
             }

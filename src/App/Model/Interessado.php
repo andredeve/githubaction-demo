@@ -212,6 +212,7 @@ class Interessado extends AppModel
         //Caso seja um cadastro externo, o usuário é cadastrado como inativo
         if($_POST['isExterno']){
             $usuario->setAtivo(false);
+            $usuario->setSenha(Usuario::codificaSenha($_POST['senha_confirma']??''));
         //Caso não seja um cadastro externo, ou seja, foi feito por um usuário do sistema,
         //gera uma senha e envia para o usuário.
         } else {

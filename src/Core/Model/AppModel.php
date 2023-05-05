@@ -164,7 +164,7 @@ abstract class AppModel implements JsonSerializable
         }
         
         $antigo = $this->buscar($this->getId());
-        // Log::registrarLog(TipoLog::ACTION_UPDATE, $this->getTableName(), "Registro atualizado", null, $antigo->imprimir(), $this->imprimir());
+        Log::registrarLog(TipoLog::ACTION_UPDATE, $this->getTableName(), "Registro atualizado", null, $antigo->imprimir(), $this->imprimir());
         $this->getDAO()->merge();
     }
 
