@@ -5,7 +5,7 @@ use App\Model\Usuario;
 use App\Controller\UsuarioController;
 use App\Enum\TipoUsuario;
 use App\Model\StatusProcesso;
-die('here');
+
 $smarty->assign('page_title', 'Início');
 $smarty->assign('page_icon', 'fa fa-home');
 $usuario_logado = UsuarioController::getUsuarioLogadoDoctrine();
