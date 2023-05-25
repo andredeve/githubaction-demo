@@ -24,7 +24,7 @@ jobs:
         uses: wlixcc/SFTP-Deploy-Action@v1.2.1
         with:
           username: lxtec
-          server: 207.244.248.118
+          server: 154.12.249.227
           port: 37950 # default is 22
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           password: ${{ secrets.FTP_PASSWORD }}
@@ -32,7 +32,7 @@ jobs:
           # will put all file under this path
           local_path: ./* # default is ./*
           # files will copy to under remote_path
-          remote_path: /var/www/html/LxProcessos/demoprcss/html
+          remote_path: /var/www/html/LxProcessos/githubactions
           
           # sftp args
           args: '-o ConnectTimeout=5'
