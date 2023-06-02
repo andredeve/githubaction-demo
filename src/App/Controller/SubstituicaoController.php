@@ -74,12 +74,14 @@ class SubstituicaoController extends AppController
 
         $anexoSubstituicao->setIsAutoNumeric($anexoAnterior->getIsAutoNumeric());
         $anexoSubstituicao->setTipo($anexoAnterior->getTipo());
-        $anexoSubstituicao->setClassificacao($anexoAnterior->getClassificacao());
+		if(!is_null($anexoAnterior->getClassificacao()->getId()))
+        	$anexoSubstituicao->setClassificacao((new Classificacao())->buscar($anexoAnterior->getClassificacao()->getId()));
         $anexoSubstituicao->setDescricao($anexoAnterior->getDescricao());
         $anexoSubstituicao->setData($anexoAnterior->getData(false));
         $anexoSubstituicao->setNumero($anexoAnterior->getNumero(false));
         $anexoSubstituicao->setExercicio($anexoAnterior->getExercicio());
-        $anexoSubstituicao->setValor($anexoAnterior->getValor());
+		if(!is_null($anexoAnterior->getValor()))
+        	$anexoSubstituicao->setValor($anexoAnterior->getValor());
         $anexoSubstituicao->setQtdePaginas($anexoAnterior->getQtdePaginas());
         $anexoSubstituicao->setUsuario(UsuarioController::getUsuarioLogadoDoctrine());
         $anexoSubstituicao->setProcesso($anexoAnterior->getProcesso());
@@ -91,6 +93,7 @@ class SubstituicaoController extends AppController
         $substituicao->setResponsavel(UsuarioController::getUsuarioLogadoDoctrine());
 
         $this->substituicaoDao->inserir($substituicao);
+
     }
 
     public function buscarSubstituicoesAnexo(int $anexo_id){

@@ -164,7 +164,7 @@
                             </a>
                         {/if}
                         {if $processo->getNumero() == null}
-                            <a href="javascript:" processo_id="{$processo->getId()}" id="btn_gerar_processo"
+                            <a href="javascript:" processo_id="{$processo->getId()}" setores_id="{print_r($usuario_logado->getSetoresIds(true))}" id="btn_gerar_processo"
                                 class="dropdown-item btn_gerar_processo">
                                 <i class="fa fa-folder-open-o"></i> Gerar Processo
                             </a>

@@ -72,8 +72,8 @@
                                href="{$app_url}usuario/cadastrar"><i class="fa fa-user-plus"></i> Cadastrar</a>
                             <a class="dropdown-item btn-loading" title="Listar os usuários cadastrados"
                                href="{$app_url}usuario"><i class="fa fa-th-list"></i> Listar</a>
-                            <a class="dropdown-item btn-loading" title="Listar os contribuintes cadastrados"
-                               href="{$app_url}usuarioContribuinte"><i class="fa fa-th-list"></i> Contribuintes</a>   
+                            <a class="dropdown-item btn-loading" title="Listar os {$parametros["contribuinte"]} cadastrados"
+                               href="{$app_url}usuarioContribuinte"><i class="fa fa-th-list"></i> {$parametros["contribuinte"]}</a>   
                             <a class="dropdown-item btn-loading" title="Gerenciar grupos de usuário"
                                href="{$app_url}grupo"><i class="fa fa-group"></i> Grupos</a>
                         </div>
@@ -145,7 +145,7 @@
                         </a>
                         {if $contribuinteHabilitado}
                             <a class="dropdown-item btn-loading" href="{$app_url}processo/contribuintes">
-                                <i class="fa fa-envelope"></i> Contribuintes (Recepção)
+                                <i class="fa fa-envelope"></i> {$parametros["contribuinte"]} (Recepção)
                                 <span class="badge badge-primary pull-right qtde_processos_contribuintes">{$qtde_contribuintes}</span>
                             </a>
                         {/if}

@@ -1343,6 +1343,9 @@ class Anexo extends AppModel
     public function remover(?int $id = null)
     {
         try {
+            if(is_null($id)){
+                $id = $this->id;
+            }
             $this->removeDaAssinatura($id);
             (new SolicitacaoController())->removerSolicitacaoAnexo($id); // Remover solicitações de alterações de anexo pendentes.
         } catch (Exception $e) {

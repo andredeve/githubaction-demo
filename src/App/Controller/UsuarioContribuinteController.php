@@ -24,7 +24,7 @@ class UsuarioContribuinteController extends UsuarioController{
                 if ($usuario != null) {
                     $_REQUEST['objeto'] = $usuario;
                     $_REQUEST['breadcrumb'] = array(
-                        array('link' => "UsuarioContribuinte", 'title' => "Contribuintes"),
+                        array('link' => "UsuarioContribuinte", 'title' => IndexController::getParametosConfig()["contribuinte"]),
                         array('link' => null, 'title' => 'Editar')
                     );
                     return $this->load("UsuarioContribuinte", 'editar');
@@ -45,7 +45,7 @@ class UsuarioContribuinteController extends UsuarioController{
 
     public function listarContribuintes(){
         $usuario = new $this->classe();
-        $_REQUEST['breadcrumb'] = array(array('link' => null, 'title' => "Contribuintes"));
+        $_REQUEST['breadcrumb'] = array(array('link' => null, 'title' => IndexController::getParametosConfig()["contribuinte"]));
         $_REQUEST['registros'] = $usuario->listarPorCampos(array("tipo" => TipoUsuario::INTERESSADO));
     }
 

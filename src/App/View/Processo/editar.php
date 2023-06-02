@@ -46,6 +46,8 @@ foreach ($processo->getAnexos() as &$item) {
 
 $substituicao = new SubstituicaoController();
 foreach ($processo->getAnexos() as $anexo){
+    if (is_null($anexo->getId()))
+        continue;
     foreach ($substituicao->buscarSubstituicoesAnexo($anexo->getId()) as $anexoOld){
         $substituido[] = $anexoOld->getAnexo()->getId();
     }
@@ -67,7 +69,7 @@ $smarty->assign("tipos_documentos", (new TipoAnexoDao())->listarAtivos());
 $smarty->assign("classificacoes", (new ClassificacaoDao())->listar());
 $smarty->assign("qtdeTramites", count($processo->getTramites()));
 $page_title = ($processo->getNumero() == null && $processo->getIsExterno())
-    ? 'Recebimento de '.AppController::getParametosConfig('nomenclatura').' (Contribuinte)'
+    ? 'Recebimento de '.AppController::getParametosConfig('nomenclatura').' ('.AppController::getParametosConfig('nomenclatura').')'
     : 'Editar '.AppController::getParametosConfig('nomenclatura');
 $smarty->assign('page_title', $page_title);
 $config = IndexController::getConfig();

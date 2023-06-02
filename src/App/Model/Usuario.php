@@ -3,6 +3,7 @@
 namespace App\Model;
 
 use App\Controller\IndexController;
+use App\Controller\UsuarioController;
 use App\Enum\TipoLog;
 use App\Enum\TipoUsuario;
 use App\Util\Email;
@@ -647,5 +648,18 @@ class Usuario extends AppModel
             "token" => $this->token,
             "pessoa" => $this->pessoa
         ];
+    }
+
+    public function podeCadastrarRetroativo(){
+        $usuario_logado = UsuarioController::getUsuarioLogadoDoctrine();
+        $tiposPermitidos = array(TipoUsuario::ADMINISTRADOR,TipoUsuario::MASTER );
+        if(in_array($usuario_logado->getTipo(), $tiposPermitidos)){
+            return true;
+        }
+        $grupo = $usuario_logado->getGrupo() ;
+        if( $grupo && $grupo->getRetroativo()){
+            return true;
+        }
+        return false;
     }
 }

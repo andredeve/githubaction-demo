@@ -16,6 +16,7 @@ use const PDF_TYPE_REAL;
 use const PDF_TYPE_STREAM;
 use const PDF_TYPE_STRING;
 use const PDF_TYPE_TOKEN;
+use Exception;
 
 /**
  * @class tcpdi_parser

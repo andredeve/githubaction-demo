@@ -26,7 +26,7 @@
         {foreach $processo->getTramites() as $tramite}
             <tr tramite_id="{$tramite->getId()}" data-toggle="tooltip" data-placement="top"
                 title="{$tramite->getParecer()}"
-                class="{if $tramite->getIsCancelado() eq true}table-danger{elseif $processo->getNumeroFase() eq $tramite->getNumeroFase() and $tramite->getIsDespachado() eq false}ui-state-highlight{/if}">
+                class="{if $tramite->getIsCancelado() eq true}table-danger{elseif $processo->getNumeroFase(true) eq $tramite->getNumeroFase() and $tramite->getIsDespachado() eq false}ui-state-highlight{/if}">
                 <td class="text-center vertical-middle">
                     <input type="hidden" name="tramite_id[]" value="{$tramite->getId()}"/>
                     <a entidade="tramite" title="Detalhar Informações de Trâmite" class="btn-detalhar text-success"

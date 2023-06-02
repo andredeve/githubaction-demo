@@ -132,16 +132,12 @@ class Email extends \Core\Util\Email
         try {
             $urlAtivacao = APP_URL."login/ativacao/".$usuario->getTokenAtivacao();
             $cliente = IndexController::getClienteConfig();
-            $content = "<h4>Seja bem vindo(a) ao Portal do Contribuinte.</h4>";
-            $content .= "<p>Para liberarmos seu acesso precisamos que confirme que este email é seu clicando no link abaixo:</p>";
-            $content .= "<a href='$urlAtivacao'>clique aqui para confimar</a>";
-            $content .= "<p>Caso o link não esteja funcionando, poderá copiar o link abaixo e colar na barra de navegação.</p>";
-            $content .= "<p>$urlAtivacao</p>";
-            $content .= "<br/>";
-            $content .= "<br/>";
-            $content .= "<br/>";
-            $content .= "<p>Caso não reconheça a origem deste email, pedimos que desconsidere.</p>";
-            $this->enviarEmail($cliente['nome'] . ' | Confirmação de Email', $content, array($usuario->getPessoa()->getEmail()));
+            $app_name = IndexController::getConfig('app_name');
+            $dados_email = IndexController::getCorpoEmailConfig();
+            $parametros = IndexController::getParametosConfig();
+            $assunto = str_replace(array("<app_name>", "<cliente>", "<contribuinte>"), array($app_name, $cliente['nome'], $parametros['contribuinte']), $dados_email['assunto']);
+            $content = str_replace(array("<app_name>", "<urlAtivacao>", "<contribuinte>"), array($app_name, $urlAtivacao, $parametros['contribuinte']), $dados_email['conteudo']);
+            $this->enviarEmail($assunto, $content, array($usuario->getPessoa()->getEmail()));
 //            AppController::setMessage(TipoMensagem::SUCCESS, "Uma confirmação foi enviada para seu email.", null, true);
         } catch (Exception $ex) {
 

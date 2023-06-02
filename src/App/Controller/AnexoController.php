@@ -41,6 +41,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
+use Lib\TCPDF\TCPDI;
 use PDFMerger;
 use SmartyException;
 
@@ -581,7 +582,7 @@ class AnexoController extends AppController
                     }
                 }
                 
-                if (is_file($anexoOld->getArquivo(true)) && $anexoOld->getArquivo(true) != $anexo->getArquivo(true)){
+                if (is_file($anexoOld->getArquivo(false, false, true)) && $anexoOld->getArquivo(false, false, true) != $anexo->getArquivo(false, false, true)){
 
                     (new SubstituicaoController())->montarSubstituicao($anexo, $anexoOld);
 
@@ -891,10 +892,24 @@ class AnexoController extends AppController
                         if (Functions::isPDF($file) && !Functions::isPDFA($file)) {
                             $anexo->setTextoOCR($this->getOrcArquivo($file));
                             $anexo->setIsDigitalizado(false);
+                            if(empty($anexo->getQtdePaginas())){
+                                $mypdf = new TCPDI();
+                                $totalPages =  $mypdf->setSourceFile($file);
+                                $anexo->setQtdePaginas($totalPages);
+                            }
                         } else if (Functions::isPDF($file) && !$anexo->getIsOCRFinalizado() && !Functions::isPDFA($dir_arquivo . $nome_arquivo)) {
                             $anexo->setTextoOCR($this->getOrcArquivo($dir_arquivo . $nome_arquivo));
                             $anexo->setIsOCRIniciado(true);
                             $anexo->setIsOCRFinalizado(true);
+                            if(empty($anexo->getQtdePaginas())){
+                                $mypdf = new TCPDI();
+                                $totalPages =  $mypdf->setSourceFile($file);
+                                $anexo->setQtdePaginas($totalPages);
+                            }
+                        } else if(Functions::isPDF($file) && empty($anexo->getQtdePaginas())){
+                            $mypdf = new TCPDI();
+                            $totalPages =  $mypdf->setSourceFile($file);
+                            $anexo->setQtdePaginas($totalPages);
                         } else if (Functions::isImage($file)) {
                             $anexo->setArquivo(basename(Functions::imageToPdf($file)));
                         }

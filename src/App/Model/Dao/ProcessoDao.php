@@ -56,7 +56,7 @@ class ProcessoDao extends AppDao
         } else {
             $sql = "SELECT COUNT(p.id) as qtde FROM processo p " .
                 "LEFT JOIN tramite t ON t.processo_id=p.id " .
-                "AND t.numero_fase=p.numero_fase AND t.assunto_id=p.assunto_id  AND t.is_cancelado=0 AND t.is_despachado=0 WHERE 1";
+                "AND t.numero_fase=p.numero_fase AND t.assunto_id=p.assunto_id  AND t.is_cancelado=0 AND t.is_despachado=0 WHERE 1 AND t.id IS NOT NULL";
         }
         $exercicio = ProcessoController::getExercicioAtual();
         $usuario = UsuarioController::getUsuarioLogadoDoctrine();

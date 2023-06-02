@@ -119,7 +119,7 @@
                     <a href="{$app_url}processo/contribuintes" class="text-white">
                         <div class="inner">
                             <h3 class="qtde_processos_contribuintes pl-2">{$qtde_contribuintes}</h3>
-                            <p class="pl-2">Contribuintes (Recepção)</p>
+                            <p class="pl-2">{$parametros["contribuinte"]} (Recepção)</p>
                         </div>
                         <div class="icon">
                             <i class="fa fa-exclamation-triangle"></i>

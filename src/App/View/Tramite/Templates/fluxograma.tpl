@@ -4,12 +4,12 @@
             {continue}
         {/if}
         {if $fase->getNumero() eq $numero_fase}
-            {$btn_class="btn-warning"}
+            {$btn_class="btn-warning btn-lg border-3-warning"}
             {$icon="fa-send-o"}
-        {elseif $fase->getNumero() eq $processo->getNumerofase()}
-            {$btn_class="btn-primary"}
+        {elseif $fase->getNumero() eq $processo->getNumerofase(true)}
+            {$btn_class="btn-primary btn-lg border-3-primary"}
             {$icon="fa-file-text-o"}
-        {elseif  $fase->getNumero() lt $processo->getNumeroFase()}
+        {elseif  $fase->getNumero() lt $processo->getNumeroFase(true)}
             {$btn_class="btn-light border"}
             {$icon="fa-check"}
         {else}
@@ -19,9 +19,12 @@
         <div class="stepwizard-step">
             <a href="#step-{$fase->getNumero()}" type="button" class="btn {$btn_class} btn-circle"
                disabled="disabled"><i class="fa {$icon}"></i></a>
-            <p>
+            <p {if $fase->getNumero() eq $processo->getNumerofase(true) or $fase->getNumero() eq $numero_fase}class="h6"{/if}>
+                {if $fase->getNumero() eq $processo->getNumerofase(true)}Fase atual<br/>
+                {elseif $fase->getNumero() eq $numero_fase}Próxima fase<br/>
+                {/if}
                 Fase {$fase->getNumero()}
-                {if $fase->getNumero() eq $processo->getNumerofase() && $processo->getAssuntos()->count() eq 0}
+                {if $fase->getNumero() eq $processo->getNumerofase(true) && $processo->getAssuntos()->count() eq 0}
                     {$setores_atual=$processo->getSetorAtual(false)}
                     {if is_array($setores_atual)}
                         {foreach $setores_atual as $setor_atual}

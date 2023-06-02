@@ -9,6 +9,7 @@ use App\Model\Grupo;
 use App\Model\Processo;
 use App\Model\Setor;
 use App\Model\StatusProcesso;
+use App\Controller\IndexController;
 use App\Model\Tramite;
 use Doctrine\Common\Collections\ArrayCollection;
 use Core\Controller\AppController;
@@ -30,7 +31,7 @@ if ($grupo->getTramitar() || in_array($usuario_logado->getTipo(), array(TipoUsua
         $smarty->assign('processo', $processo);
         $smarty->assign('tramite', $tramite);
         $smarty->assign('cancelar', $_POST['cancelar'] ?? 0);
-        $smarty->assign("numero_fase", !$tramite->getForaFluxograma() || $tramite->getCancelouDecisao() ? $processo->getNumeroFase() + 1 : $processo->getNumeroFase());
+        $smarty->assign("numero_fase", !$tramite->getForaFluxograma() || $tramite->getCancelouDecisao() ? $processo->getNumeroFase(true) + 1 : $processo->getNumeroFase(true));
         $smarty->assign('devolver', $tramite->getForaFluxograma() && !$tramite->getCancelouDecisao() ? 1 : 0);
         $smarty->assign('setor_id', null);
         $smarty->assign('origem_unica', true);
@@ -99,6 +100,8 @@ if ($grupo->getTramitar() || in_array($usuario_logado->getTipo(), array(TipoUsua
         $smarty->assign("tipos_documentos", $tiposDocumentos);
         $smarty->assign("empresas", $empresas);
     }
+    $parametros = IndexController::getParametosConfig();
+    $smarty->assign('parametros', $parametros);
     $smarty->display('tramitar.tpl');
 } else {
     echo Grupo::createNoPermissisionError();

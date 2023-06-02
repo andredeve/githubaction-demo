@@ -667,6 +667,10 @@ class Processo extends AppModel
                 return true;
             }
         }
+        if(is_null($this->getTramites()->last()->getSetorAtual()))
+        {
+            return true;
+        }
         return false;
     }
 
@@ -1789,5 +1793,5 @@ class Processo extends AppModel
     public function imprimir(): string
     {
         return json_encode($this, JSON_PRETTY_PRINT);
-    }
+    }    
 }

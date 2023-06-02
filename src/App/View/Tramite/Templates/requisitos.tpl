@@ -29,7 +29,7 @@
                                             <div id="div-arquivo-{$countDiv}">
                                                 <div class="card-body p-2" id="div-{$countDiv}-campos-arquivo-{$countCampos}">
                                                     {if $campo->getAssinaturaObrigatoria() and !$usuarioEhInteressado}
-                                                        <div class="form-group row">
+                                                        <div class="form-group m-2 row">
                                                             <div class="col-3">
                                                                 <label class="col-form-label {if $campo->getIsObrigatorio() eq true}required{/if}">Data
                                                                     Limite Assinatura:</label>
@@ -145,7 +145,7 @@
                                                             </div>
                                                         {/if}
                                                         <div id="div-{$countDiv}-insere-arquivo-{$countCampos}" class="col-12">
-                                                            <label class="control-label {if $campo->getIsObrigatorio() eq true}required{/if}">Arquivo
+                                                            <label class="control-label mb-0 {if $campo->getIsObrigatorio() eq true}required{/if}">Arquivo
                                                                 (.pdf):</label>
                                                             {if $campo->getTemplate() neq null}
                                                                 <a title="Ver template selecionado" class="btn btn-link btn-sm float-right" target="_blank"
@@ -181,11 +181,13 @@
                                     {elseif $campo->getTipo() eq App\Enum\TipoCampo::ARQUIVO_MULTIPLO}
                                         <fieldset>
                                             <legend>
-                                                <small>
-                                                    <i class="fa fa-file-text-o"></i> {$campo->getNome()}
-                                                    <a href="javascript:" data-toggle="tooltip-html" title="{$campo->getDescricao()}"><i
-                                                            class="fa fa-question-circle"></i></a>
-                                                </small>
+                                                <div class="card-header text-white bg-primary p-2">
+                                                    <small>
+                                                        <i class="fa fa-file-text-o"></i> {$campo->getNome()}
+                                                        <a href="javascript:" data-toggle="tooltip-html" title="{$campo->getDescricao()}"><i
+                                                                class="fa fa-question-circle fa-inverse"></i></a>
+                                                    </small>
+                                                </div>
                                             </legend>
                                             {if $campo->getAssinaturaObrigatoria() and !$usuarioEhInteressado}
                                                 <div class="form-group row">
@@ -273,9 +275,9 @@
                                                     </div>
                                                 </div>
                                             {/if}
-                                            <div class="form-group row">
+                                            <div class="form-group m-2 row">
                                                 <div class="col">
-                                                    <label class="control-label {if $campo->getIsObrigatorio() eq true}required{/if}">Arquivo
+                                                    <label class="control-label mb-0 {if $campo->getIsObrigatorio() eq true}required{/if}">Arquivo
                                                         (.pdf):</label>
                                                     {if $campo->getTemplate() neq null}<a title="Ver template selecionado"
                                                             class="btn btn-link btn-sm float-right" target="_blank"
@@ -292,30 +294,35 @@
                                     {elseif $campo->getTipo() eq App\Enum\TipoCampo::PROCESSO}
                                         <fieldset>
                                             <legend>
-                                                <small>
-                                                    <i class="fa fa-file-text-o"></i> {$campo->getNome()}
-                                                    <a href="javascript:" data-toggle="tooltip-html" title="{$campo->getDescricao()}"><i
-                                                            class="fa fa-question-circle"></i></a>
-                                                </small>
+                                                <div class="card-header text-white bg-primary p-2">
+                                                    <small>
+                                                        <i class="fa fa-file-text-o"></i> {$campo->getNome()}
+                                                        <a href="javascript:" data-toggle="tooltip-html" title="{$campo->getDescricao()}"><i
+                                                                class="fa fa-question-circle fa-inverse"></i></a>
+                                                    </small>
+                                                </div>
                                             </legend>
-                                            <div class="form-group">
+                                            <div class="form-group m-2">
                                                 <label
-                                                    class="col-f orm-label {if $campo->getIsObrigatorio() eq true}required{/if}">{$parametros['nomenclatura']}
-                                                    s vinculados a este:</label>
+                                                    class="col-form-label {if $campo->getIsObrigatorio() eq true}required{/if}">
+                                                        {$parametros['nomenclatura']}s vinculados a este:</label>
                                                 <div class="float-right">
                                                     <a href="#" entidade="Processo" title="Pesquisa avançada por {$parametros['nomenclatura']}"
                                                         class="btn btn-xs btn-info btn-selectionar-entidade"><i class="fa fa-search"></i></a>
                                                 </div>
-                                                <select class="form-control select_processo " name="campo_{$campo->getId()}"
+                                                <select class="form-control select_processo fixed-bottom m-2" name="campo_{$campo->getId()}"
                                                     {if $campo->getIsObrigatorio() eq true}required="true" {/if}>
                                                     <option></option>
                                                 </select>
                                             </div>
                                         </fieldset>
                                     {else}
-                                        <div class="form-group">
-                                            <label class="control-label {if $campo->getIsObrigatorio() eq true}required{/if}">{$campo->getNome()}
-                                                :</label>
+                                        <div class="form-group mb-0">
+                                            <div class="card-header text-white bg-primary p-2">
+                                                <label class="control-label mb-0 {if $campo->getIsObrigatorio() eq true}required{/if}">{$campo->getNome()}
+                                                    :</label>
+                                            </div>
+                                            <div class="m-2">
                                             {if $campo->getTipo() eq App\Enum\TipoCampo::TEXTO}
                                                 <input type="text" name="campo_{$campo->getId()}"
                                                     class="form-control form-control-sm {$campo->getMascara()}" {if $campo->getIsObrigatorio() eq true}
@@ -371,8 +378,11 @@
                                                             {if $campo->getIsObrigatorio() eq true}required="true" {/if} />
                                                     </div>
                                                 {/if}
+                                                {if $campo->getDescricao()}
                                                 <small class="form-text text-muted">{$campo->getDescricao()}
                                                 </small>
+                                                {/if}
+                                                </div>
                                             </div>
                                         {/if}
                                         </div>

@@ -5,7 +5,7 @@
             <input type="hidden" name="entidade_descricao" id="entidade_descricao"> 
             <p class="text-info lead">Selecione um processo da lista abaixo:</p>
                 <table id="tabelaPesquisaSelecionarProcesso" class="table table-hover table-sm"
-                       url="{$app_url}src/App/Ajax/Processo/listar_resumido.php?is_arquivado=0&pesquisar=1" sorter="1"
+                       url="{$app_url}src/App/Ajax/Processo/listar_resumido.php?pesquisar=1" sorter="1"
                        cols_select="1,2,3,4,5"
                        cols_hidden="0,6,7,8,9,10"
                        cols_descricao="0,1"

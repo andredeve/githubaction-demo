@@ -718,21 +718,35 @@ $(document).ready(function () {
 
     $('body').on('click', '#btn_gerar_processo', function (e) {
         e.preventDefault();
-        let id = $(this).attr("processo_id");
+        var id = $(this).attr("processo_id");
+
         let closeLoader = true;
         showLoading();
-        $.post(app_path + 'Processo/gerarProcesso',{id: id}, function (response) {
-            showGrowMessage(response.tipo, response.msg);
-            if (response.tipo == "success") {
-                closeLoader = false;
-                window.location.reload();
-            }
-
-        },"json"
-        ).done(function () {
-            if(closeLoader){
-                hideLoading();
-            }
+        $.post(app_path + 'src/App/View/Setor/selecionar_gerarprocesso.php', {id: id}, function (response) {
+            createModal('pesquisaSelecionarSetorModal', 'Selecionar setor', response, 'modal-lg');
+            $("#formSelecionaSetor").validate({
+                ignore: ":hidden",
+                submitHandler: function (form) {
+                    var l = Ladda.create(form.querySelector('.ladda-button'));
+                    l.start();
+                    $.post(app_path + 'Processo/gerarProcesso', $(form).serialize(), function (response) {
+                        showGrowMessage(response.tipo, response.msg);
+                        if (response.tipo == "success") {
+                            closeLoader = false;
+                            window.location.reload();
+                        }
+            
+                    },"json"
+                    ).done(function () {
+                        if(closeLoader){
+                            hideLoading();
+                        }
+                    });
+                    return false;
+                }
+            });
+        }).done(function () {
+            hideLoading();
         });
     })
 

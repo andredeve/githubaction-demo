@@ -322,7 +322,7 @@ abstract class AppController
             Log::registrarLog(TipoLog::ACTION_UPDATE, $object->getTableName(), "Registro convertido", null, $object->imprimir());
             self::setMessage(TipoMensagem::SUCCESS, 'Registro convertido com sucesso!', null, $isAjax);
         } catch (ForeignKeyConstraintViolationException $e) {
-            self::setMessage(TipoMensagem::ERROR, "Erro ao converter registro. Mensagem: este interessado já é um contribuinte", null, $isAjax);
+            self::setMessage(TipoMensagem::ERROR, "Erro ao converter registro. Mensagem: este interessado já é um " . $this->getParametosConfig('contribuinte'), null, $isAjax);
             self::registerLogError($e);
         } catch (DBALException $e) {
             self::setMessage(TipoMensagem::ERROR, "Interessado já é um contribuinte", null, $isAjax);
@@ -663,6 +663,23 @@ abstract class AppController
     public static function getParametrosDefaultConfig()
     {
         return parse_ini_file(CONFIG_PATH . 'parametros_default.ini');
+    }
+
+    public static function getCorpoEmailConfig($name = null)
+    {
+        if (is_null($name)) {
+            return parse_ini_file(CONFIG_PATH . 'corpo_email.ini');
+        }
+        $config = parse_ini_file(CONFIG_PATH . 'corpo_email.ini');
+        if (isset($config[$name])) {
+            return $config[$name];
+        }
+        return false;
+    }
+    
+    public static function getTermosUso()
+    {
+        return parse_ini_file(CONFIG_PATH . 'termos_uso.ini');
     }
 
     public static function getClienteConfig($name = null)

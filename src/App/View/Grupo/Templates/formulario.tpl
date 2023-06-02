@@ -30,6 +30,7 @@
                                 <th>Gerar Relatórios</th>
                                 <th>Tramitar Protocolos</th>
                                 <th>Arquivar/Desarquivar Protocolos</th>
+                                <th>Cadastrar Retroativos</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,6 +46,9 @@
                                 </td>
                                 <td>
                                     <input type="checkbox" name="arquivar" value="1" {if $grupo->getArquivar() eq true}checked{/if}/>
+                                </td>
+                                <td>
+                                    <input type="checkbox" name="retroativo" value="1" {if $grupo->getRetroativo() eq true}checked{/if}/>
                                 </td>
                             </tr>
                         </tbody>

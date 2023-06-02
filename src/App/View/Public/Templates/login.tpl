@@ -60,14 +60,14 @@
                     </div>
                     {if $contribuinteHabilitado}
                         <p>
-                            Primeiro acesso contribuinte? <a href="{$app_url}contribuinte/signup">Clique aqui</a>
+                            Primeiro acesso {$parametros['contribuinte']}? <a href="{$app_url}contribuinte/termoUso">Clique aqui</a>
                         </p>
                     {/if}
                     <p>
                         Esqueceu sua senha? <a href="#alteraSenhaModal" data-toggle="modal">Clique aqui</a>
                     </p>
                     <p class="alert alert-warning">
-                        Em caso de acesso de Contribuinte,<br> o usuário é o CPF/CNPJ.
+                        Em caso de acesso de {$parametros['contribuinte']},<br> o usuário é o CPF/CNPJ.
                     </p>
                 </form>
             </div>

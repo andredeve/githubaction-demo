@@ -33,6 +33,8 @@ namespace Lib\TCPDF;
 //
 //============================================================+
 
+use Exception;
+
 /**
  * @file
  * This is a PHP class for parsing PDF documents.<br>

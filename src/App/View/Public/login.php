@@ -8,6 +8,7 @@ $smarty->assign('contribuinteHabilitado', AppController::contribuinteHabilitado(
 $smarty->assign('page_title', 'Login do Sistema');
 $smarty->assign('app_url', APP_URL);
 $smarty->assign('app_config', $app_config);
+$smarty->assign('parametros', AppController::getParametosConfig());
 
 
 /* Key for Server 173.224.112.144 */

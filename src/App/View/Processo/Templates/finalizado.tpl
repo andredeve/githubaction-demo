@@ -15,7 +15,7 @@
         <a href="{$app_url}Contribuinte/editar/id/{$processo->getId()}" class="btn btn-primary"><i class="fa fa-search"></i> Visualizar Solicitação de {$parametros['nomenclatura']}</a>
     {else}
         <a title="Gerar capa para processo" target="_blank" href="{$app_url}Processo/gerarCapa/processo/{$processo->getId()}" class="btn btn-primary"><i class="fa fa-lg fa-file"></i> Gerar Capa</a>
-        <a target="_blank" href="{$app_url}Processo/gerarGTE/processo/{$processo->getId()}/{$processo->getNumeroFase()}" class="btn btn-primary" title="Gerar Guia de tramitação eletrônica"><i class="fa fa-file-pdf-o"></i> Gerar GTE</a>
+        <a target="_blank" href="{$app_url}Processo/gerarGTE/processo/{$processo->getId()}/{$processo->getNumeroFase(true)}" class="btn btn-primary" title="Gerar Guia de tramitação eletrônica"><i class="fa fa-file-pdf-o"></i> Gerar GTE</a>
         <a target="_blank" href="{$app_url}Processo/gerarEtiqueta/processo/{$processo->getId()}" class="btn btn-primary"><i class="fa fa-th-list"></i> Gerar Etiqueta</a>
         <a target="_blank" href="{$app_url}Processo/gerarRecibo/processo/{$processo->getId()}" class="btn btn-primary"><i class="fa fa-file-text-o"></i> Gerar Recibo</a>
         <a href="{$app_url}Processo/editar/id/{$processo->getId()}" class="btn btn-primary"><i class="fa fa-search"></i> Visualizar {$parametros['nomenclatura']}</a>

@@ -22,6 +22,11 @@ class ContribuinteController extends ProcessoController {
         $this->load('Public', 'home');
     }
 
+    public function termoUso()
+    {
+        $this->load('Public', 'termo_uso',true, true,  null, true);
+    }
+
     public function signup()
     {
         $this->load('Interessado', 'cadastrar',true, false,  null, true);

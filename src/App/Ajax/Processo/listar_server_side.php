@@ -147,7 +147,13 @@ if ($_GET['tipo_listagem'] != "vencidos") {
                 return !empty($d) ? $d : $row[$indice_setor_anterior];
             }
         ),
-        array('db' => 'setor_atual', 'dt' => 6),
+        array('db' => 'setor_atual', 'dt' => 6,
+                    'formatter' => function ($d, $row) {
+                        if(is_null($d))
+                            return 'Sem setor destino atribuído';
+                        else
+                            return $d;
+        }),
         array('db' => 'data_envio', 'dt' => 7,
             'formatter' => function ($d, $row) {
                 return Functions::converteData($d);
@@ -246,10 +252,10 @@ switch ($_GET['tipo_listagem']) {
         break;
 }
 //$where .= " AND apensado_id IS NULL ";
-if ($usuario != null && $_GET['tipo_listagem'] != 'enviados' && !$usuario->isAdm()) {
+if ($usuario != null && $_GET['tipo_listagem'] != 'enviados' && $usuario->getTipo() != TipoUsuario::MASTER) {
     $setores = $usuario->getSetoresIds(true);
     
-    $where .= !empty($setores)? " AND (setor_atual_id IN({$setores}) OR setor_atual_id IS NULL) ":"";
+    $where .= !empty($setores)? " AND (setor_atual_id IN({$setores}) OR setor_atual_id IS NULL) AND tramite_id IS NOT NULL ":"";
     $where .= " AND IF(usuario_destino_id IS NOT NULL,usuario_destino_id={$usuario->getId()},1)=1";
 }
 echo json_encode(

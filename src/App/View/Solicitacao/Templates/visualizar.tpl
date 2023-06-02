@@ -53,7 +53,17 @@
             <th class="col-2">Tipo:</th><td>{$anexo_anterior->getDescricao()}</td><td>{if !is_null($anexo_novo)}{$anexo_novo->getDescricao()}{/if}</td>
         </tr>
         <tr>
-            <th class="col-2">Classificação:</th><td>{$anexo_anterior->getClassificacao()->getTitulo()}</td><td>{if !is_null($anexo_novo)}{$anexo_novo->getClassificacao()->getTitulo()}{/if}</td>
+            <th class="col-2">Classificação:</th>
+            <td>
+                {if $anexo_anterior->getClassificacao()}
+                    {$anexo_anterior->getClassificacao()->getTitulo()}
+                {/if}
+            </td>
+            <td>
+                {if !is_null($anexo_novo) && $anexo_novo->getClassificacao() }
+                    {$anexo_novo->getClassificacao()->getTitulo()}
+                {/if}
+            </td>
         </tr>
         <tr>
             <th class="col-2">Valor:</th><td>{$anexo_anterior->getValor(true)}</td><td>{if !is_null($anexo_novo)}{$anexo_novo->getValor(true)}{/if}</td>

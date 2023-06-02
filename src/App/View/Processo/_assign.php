@@ -19,8 +19,7 @@ if($usuario_logado->getTipo() == TipoUsuario::INTERESSADO){
     $smarty->assign("assuntos", Assunto::getAssuntosExternos());
 }else{
     $smarty->assign("setores", $usuario_logado->getSetores());
-    $tiposPermitidos = array(TipoUsuario::ADMINISTRADOR,TipoUsuario::MASTER );
-    $podeAlterarNumeroProcesso = in_array($usuario_logado->getTipo(), $tiposPermitidos);
+    $podeAlterarNumeroProcesso = $usuario_logado->podeCadastrarRetroativo();
 }
 $smarty->assign('usuarioEhInteressado', $usuarioEhInteressado);
 $smarty->assign("podeAlterarNumeroProcesso", (!$usuarioEhInteressado) ? $podeAlterarNumeroProcesso : false );

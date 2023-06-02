@@ -112,6 +112,11 @@ class CapaProcesso extends Report
         $this->SetFont('times', '', 10);
         $this->MultiCell(0, 5, mb_strtoupper($this->processo->getObjeto(), 'UTF-8'), 'LBR', 'L');
         $this->Ln(5);
+        $this->SetFont('times', 'B', 12);
+        $this->Cell(0, 7, 'RESPONSÁVEL PELO PROTOCOLO', 'LTR', 2);
+        $this->SetFont('times', '', 10);
+        $this->MultiCell(0, 5, mb_strtoupper($this->processo->getUsuarioAbertura(true), 'UTF-8'), 'LBR', 'L');
+        $this->Ln(5);
     }
 
     /**

@@ -55,7 +55,7 @@ class TramiteController extends AppController
             $tramiteAtual = $processo->getTramiteAtual();
             //Volta fase do processo somente se a fase atual tiver um único trâmite
             if (count($tramiteAtual) == 1) {
-                $processo->setNumeroFase($processo->getNumeroFase() - 1);
+                $processo->setNumeroFase($processo->getNumeroFase(true) - 1);
                 $processo->atualizar();
             }
             $usuario = UsuarioController::getUsuarioLogadoDoctrine();

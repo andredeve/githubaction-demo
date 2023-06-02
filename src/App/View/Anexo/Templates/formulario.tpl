@@ -32,12 +32,12 @@
         {if $requer_motivo eq 1 and !is_null($anexo->getId())}
             <div class="form-group row form-anexo">
                 <div class="col">
-                    <label class="col-form-label">Motivo:</label>
+                    <label class="col-form-label required">Motivo:</label>
                     <input type="text" name="motivo" class="form-control form-control-sm" required/>
                 </div>
             </div>
         {/if}
-        {/if}
+{/if}
         <input type="hidden" name="id" value="{$anexo->getId()}"/>
         <input type="hidden" name="indice" value="{$indice}"/>
         <input type="hidden" name="processo_id" value="{$anexo->getProcesso()->getId()}"/>
@@ -127,7 +127,7 @@
         </div>
 {if ($acao eq 'atualizar' and $editar_arquivo eq 1)}</div>{/if}
 {if ($acao eq 'atualizar' and $editar_info eq 1)}<div class="hidden">{/if}
-<div class="form-group row {if !$anexo->getArquivo()}hidden{/if}">
+<div class="form-group row {if !$anexo->getArquivo() or $requer_motivo eq 1}hidden{/if}">
     <div class="col">
         <label class="col-form-label {if $anexo->getArquivo()}required{/if}">Motivo de substituição:</label>
         <input id="motivo" type="text" name="motivo"

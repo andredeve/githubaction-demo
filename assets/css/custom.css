@@ -385,6 +385,27 @@ table.dataTable.table-sm > thead > tr > th.sorting_disabled {
     border-radius: 15px;
 }
 
+.btn-lg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 6px 0;
+    font-size: 16px;
+    border-radius: 20px;
+  }
+
+.border-3-primary {
+    border: 3px solid #2e6da4 !important;
+    margin: auto;
+  }
+  
+  .border-3-warning {
+      border: 3px solid !important;
+      margin: auto;
+    }
+
 .s2-to-tree .select2-results__option.l8 {
     margin-left: 6.0em;
     font-size: 0.75em;

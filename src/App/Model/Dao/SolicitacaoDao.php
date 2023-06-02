@@ -156,7 +156,9 @@ class SolicitacaoDao extends AppDao
      */
     public function procurarAnexoSolicitacaoEdicaoPendente(Solicitacao $solicitacao): ?AnexoAlteracao {
         try {
-            (new Solicitacao())->getAnexoNovo();
+            if(!$solicitacao->getAnexoNovo()){
+                return null;
+            }
             $query = self::getEntityManager()->createQueryBuilder()
                 ->select("s")
                 ->from(AnexoAlteracao::class, "s")

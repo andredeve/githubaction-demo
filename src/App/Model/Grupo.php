@@ -45,6 +45,12 @@ class Grupo extends AppModel implements EntityInterface
     private $arquivar;
 
     /**
+     * Define se usuários do grupo podem cadastrar processos retroativo
+     * @Column(type="boolean",name="retroativo")
+     */
+    private $retroativo;
+
+    /**
      * @OneToMany(targetEntity="PermissaoEntidade", mappedBy="grupo",cascade={"persist"})
      */
     private $permissoesEntidade;
@@ -221,4 +227,20 @@ class Grupo extends AppModel implements EntityInterface
             . '</div>'
             . '</div>';
     }
+
+	/**
+	 * Define se usuários do grupo podem cadastrar processos retroativo
+	 * @return mixed
+	 */
+	public function getRetroativo() {
+		return $this->retroativo;
+	}
+	
+	/**
+	 * Define se usuários do grupo podem cadastrar processos retroativo
+	 * @param mixed $retroativo Define se usuários do grupo podem cadastrar processos retroativo
+	 */
+	public function setRetroativo($retroativo) {
+		$this->retroativo = $retroativo;
+	}
 }

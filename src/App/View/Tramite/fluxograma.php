@@ -12,7 +12,7 @@ if (!empty($_POST['assunto_id'])) {
     $processo->setNumeroFase($numero_fase);
     $smarty->assign('assunto', (new \App\Model\Assunto())->buscar($_POST['assunto_id']));
 } else {
-    $numero_fase = $processo->getNumeroFase();
+    $numero_fase = $processo->getNumeroFase(true);
     $smarty->assign('assunto', $processo->getAssunto());
 }
 $smarty->assign('numero_fase', $numero_fase);

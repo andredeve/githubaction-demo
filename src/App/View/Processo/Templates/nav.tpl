@@ -30,7 +30,7 @@
         <li class="nav-item">
             <a href="{$app_url}processo/contribuintes" class="nav-link  {if $selected eq 'contribuintes'}active{/if}">
                 <span>
-                    <i class="fa fa-users"></i> Contribuintes
+                    <i class="fa fa-users"></i> {$parametros["contribuinte"]}
                 </span>
                 <span class="badge badge-warning badge-pill qtde_processos_contribuintes">{$qtde_contribuintes}</span>
             </a>

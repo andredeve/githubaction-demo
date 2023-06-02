@@ -268,10 +268,10 @@
                                 title="Pesquisa avançada por {$parametros['nomenclatura']}"
                                 class="btn btn-xs btn-info btn-selectionar-entidade" data-processoid="{$processo->getId()}" {if !empty($processo->getApensado())}data-apensadoid="{$processo->getApensado()->getId()}"{/if}><i
                                             class="fa fa-search"></i></a>
-                                <a href="#" processo_id="{$processo->getId()}"
+                                {* <a href="#" processo_id="{$processo->getId()}"
                                 title="Cadastrar novo {$parametros['nomenclatura']} Apenso"
                                 class="btn btn-xs btn-success btn-cadastrar-apenso"><i
-                                            class="fa fa-plus"></i></a>
+                                            class="fa fa-plus"></i></a> *}
                             </div>
                             <select id="select_apensos" class="form-control select_processo"
                                     name="apensos_id[]" multiple="true">

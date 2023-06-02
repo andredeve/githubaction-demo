@@ -1,5 +1,6 @@
 <?php
 
+use App\Controller\SubstituicaoController;
 use App\Controller\ProcessoController;
 use App\Enum\TipoUsuario;
 use App\Controller\UsuarioController;
@@ -50,6 +51,15 @@ foreach ($processo->getAnexos() as &$item) {
         $item->status = $anexosStatus[$assinatura->getLxsign_id()];
     }
 }
+$substituicao = new SubstituicaoController();
+foreach ($processo->getAnexos() as $anexo){
+    if (is_null($anexo->getId()))
+        continue;
+    foreach ($substituicao->buscarSubstituicoesAnexo($anexo->getId()) as $anexoOld){
+        $substituido[] = $anexoOld->getAnexo()->getId();
+    }
+}
+$smarty->assign('substituido', $substituido);
 $smarty->assign('file_version', uniqid());
 $smarty->assign("usuarioEhInteressado", UsuarioController::isInteressado());
 $smarty->assign("processo", $processo);

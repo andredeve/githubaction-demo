@@ -413,7 +413,7 @@ class ProcessoController extends AppController
 
     function contribuintes()
     {
-        $_REQUEST['breadcrumb'] = array(array('link' => null, 'title' => $this->getBreadCrumbTitle()), array('link' => null, 'title' => 'A Receber (Contribuintes)'));
+        $_REQUEST['breadcrumb'] = array(array('link' => null, 'title' => $this->getBreadCrumbTitle()), array('link' => null, 'title' => 'A Receber (' . IndexController::getParametosConfig()["contribuinte"] . ')'));
         $this->load($this->class_path, 'contribuintes');
     }
 
@@ -847,6 +847,12 @@ class ProcessoController extends AppController
                      * porém quando é uma solicitação de criação pelo contribuinte, o número não é gerado
                      * somente após ser consolidada a criação do processo
                     */
+                    if(is_null($processo->getTramites()->last()->getSetorAtual())){
+                        $tramite = (new Tramite())->buscar($processo->getTramites()->last()->getId());
+                        $setor = (new Setor())->buscar($_POST['setores_id']);
+                        $tramite->setSetorAtual($setor);
+                        $tramite->atualizar();
+                    }
                     $processo->gerarNumero(false);
                     $processo->atualizar();
                     if($processo->getNumero() !== null){
@@ -1112,7 +1118,7 @@ class ProcessoController extends AppController
             $tramiteAtual = (new Tramite())->buscar($_POST['tramite_id']);
             $processo = $tramiteAtual->getProcesso();
             // Se proceso teve tomada de decisão e está na primeira etapa do trâmite após tomar a decisão
-            if ($processo->getAssuntos()->count() > 0 && $processo->getNumeroFase() == 1 && $processo->getTramiteAtual() instanceof Tramite) {
+            if ($processo->getAssuntos()->count() > 0 && $processo->getNumeroFase(true) == 1 && $processo->getTramiteAtual() instanceof Tramite) {
                 $tramiteAnterior = $processo->getTramiteAnterior();
                 // cancelar tomada de decisão e voltar ao setor anterior
                 $assuntoProcesso = (new AssuntoProcesso())->buscarPorAssunto($tramiteAnterior->getAssunto()->getId(), $processo->getId());
@@ -1183,10 +1189,10 @@ class ProcessoController extends AppController
                 $processo->adicionarAssunto($assuntoProcesso);
                 $processo->setAssunto((new Assunto())->buscar($_POST['assuntoProsseguir']));
                 $processo->setNumeroFase(1);
-                $this->adicionarTramites($processo, $processo->getAssunto(),  $processo->getNumeroFase(), $setorAnterior, true, $remessa);
+                $this->adicionarTramites($processo, $processo->getAssunto(),  $processo->getNumeroFase(true), $setorAnterior, true, $remessa);
             }
             else{
-                $this->adicionarTramites($processo, $processo->getAssunto(), !isset($_POST['devolver']) || $_POST['devolver'] == 0 ? $processo->getNumeroFase() + 1 : $processo->getNumeroFase(), $setorAnterior, true, $remessa);
+                $this->adicionarTramites($processo, $processo->getAssunto(), !isset($_POST['devolver']) || $_POST['devolver'] == 0 ? $processo->getNumeroFase(true) + 1 : $processo->getNumeroFase(true), $setorAnterior, true, $remessa);
             }
             $this->verificarArquivamentoAutomatico($processo);
             $processo->atualizar();

@@ -205,6 +205,7 @@ class SolicitacaoController extends AppController
      */
     private function montarSolicitacaoEdicaoAnexo(Solicitacao &$solicitacao) {
         $anexo = $this->solicitacaoDao->procurarAnexoSolicitacaoEdicaoPendente($solicitacao) ?? new AnexoAlteracao();
+        $anexo->setProcesso($solicitacao->getAnexoAnterior()->getProcesso());
         $anexo->setIsAutoNumeric(isset($_POST['auto_numero_doc']) && $_POST['auto_numero_doc']);
 //        if ($_POST['tipo_upload'] == 'model') {
 //            TODO
